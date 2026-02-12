@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black_background">#121212</color>
+    <color name="dark_surface">#1E1E1E</color>
+    <color name="safety_orange">#FF5722</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0B0B0</color>
+    <color name="sent_bubble">#FF5722</color>
+    <color name="received_bubble">#2C2C2C</color>
+</resources>
