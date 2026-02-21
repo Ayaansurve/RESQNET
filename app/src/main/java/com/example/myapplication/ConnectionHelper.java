@@ -100,6 +100,14 @@ public class ConnectionHelper {
         return connectedPeers.size();
     }
 
+    /**
+     * Get the local endpoint ID (stable node identifier).
+     * Used to filter self out from peer lists.
+     */
+    public String getLocalEndpointId() {
+        return prefs.getString("stable_node_id", "UNKNOWN");
+    }
+
     public void broadcastSOS() {
         if (connectedPeers.isEmpty()) {
             Log.w(TAG, "SOS: no peers.");
@@ -124,6 +132,25 @@ public class ConnectionHelper {
                 .addOnFailureListener(e ->
                         Log.w(TAG, "Profile send failed: " + e.getMessage()));
         Log.d(TAG, "Profile sent to " + endpointId);
+    }
+
+    /**
+     * Broadcast a message to all connected peers.
+     * Used for JSON profile exchange and other protocol messages.
+     */
+    public void broadcastMessage(String messageType, String payload) {
+        if (connectedPeers.isEmpty()) {
+            Log.w(TAG, messageType + ": no peers to broadcast to.");
+            return;
+        }
+        String packet = messageType + SEP + payload;
+        byte[] bytes = packet.getBytes(StandardCharsets.UTF_8);
+        for (String id : connectedPeers.keySet()) {
+            nearbyClient.sendPayload(id, Payload.fromBytes(bytes))
+                    .addOnFailureListener(e ->
+                            Log.w(TAG, "Broadcast failed to " + id + ": " + e.getMessage()));
+        }
+        Log.d(TAG, messageType + " broadcast to " + connectedPeers.size() + " peers.");
     }
 
     // ── EndpointName helpers ──────────────────────────────────────────────────
@@ -253,6 +280,8 @@ public class ConnectionHelper {
 
             if (msg.startsWith("SOS")) {
                 handleSos(fromEndpointId, msg, payload.asBytes());
+            } else if (msg.startsWith("PROFILE_JSON")) {
+                handleJsonProfile(fromEndpointId, msg);
             } else if (msg.startsWith(PeerProfile.TYPE)) {
                 handleProfile(fromEndpointId, msg);
             }
@@ -285,6 +314,32 @@ public class ConnectionHelper {
         }
         Log.i(TAG, "Profile received: " + profile);
         mainHandler.post(() -> listener.onProfileReceived(profile));
+    }
+
+    /**
+     * Handle incoming JSON profile from a peer.
+     * Includes triage data: age, injury severity, location.
+     */
+    private void handleJsonProfile(String fromId, String msg) {
+        try {
+            // Remove "PROFILE_JSON|" prefix
+            int separatorIndex = msg.indexOf(SEP);
+            if (separatorIndex < 0) return;
+            String jsonPayload = msg.substring(separatorIndex + 1);
+
+            // Delegate to MeshManager for parsing and storage
+            MeshManager.getInstance().onJsonProfileReceived(jsonPayload);
+
+            // Relay to all other peers (flood the network with updated profiles)
+            byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
+            for (String id : connectedPeers.keySet()) {
+                if (!id.equals(fromId)) {
+                    nearbyClient.sendPayload(id, Payload.fromBytes(bytes));
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to handle JSON profile: " + e.getMessage());
+        }
     }
 
     // ── Listener interface ────────────────────────────────────────────────────

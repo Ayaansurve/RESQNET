@@ -108,6 +108,14 @@ public class MeshManager {
         return connectionHelper != null ? connectionHelper.getPeerCount() : 0;
     }
 
+    /**
+     * Get the self node ID / endpoint ID of the current device.
+     * Used to filter self out from triage and peer lists.
+     */
+    public String getSelfId() {
+        return connectionHelper != null ? connectionHelper.getLocalEndpointId() : "self";
+    }
+
     public void broadcastSOS() {
         if (connectionHelper != null) connectionHelper.broadcastSOS();
     }
@@ -131,6 +139,75 @@ public class MeshManager {
                 "self", role, name, skills, equipment, 0.0, 0.0, situation);
 
         connectionHelper.sendProfilePayload(endpointId, myProfile.toWireFormat());
+    }
+
+    /**
+     * Broadcast profile as JSON to all connected peers.
+     * Includes triage data (age, injury severity, location).
+     */
+    public void broadcastProfileAsJson(Context context) {
+        if (connectionHelper == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(
+                MainActivity.PREFS_NAME, Context.MODE_PRIVATE);
+
+        String role      = prefs.getString(MainActivity.KEY_USER_ROLE, MainActivity.ROLE_SURVIVOR);
+        String name      = prefs.getString(MainActivity.KEY_USER_NAME, "Unknown");
+        String skills    = prefs.getString("vol_medical_skills", "");
+        String equipment = prefs.getString("vol_equipment", "");
+        String situation = prefs.getString("survivor_description", "");
+        int age          = prefs.getInt("user_age", 30);
+        int injurySeverity = prefs.getInt("user_injury_severity", 0);
+        String location  = prefs.getString("user_location", "");
+
+        PeerProfile myProfile = new PeerProfile(
+                getSelfId(), role, name, skills, equipment, 0.0, 0.0, situation,
+                age, injurySeverity, location);
+
+        String json = myProfile.toJsonString();
+        connectionHelper.broadcastMessage("PROFILE_JSON", json);
+    }
+
+    /**
+     * Parse incoming JSON profile and store it.
+     * Called when a peer sends their profile as JSON with triage data.
+     */
+    public void onJsonProfileReceived(String json) {
+        try {
+            PeerProfile profile = PeerProfile.fromJsonString(json);
+            if (profile != null && !profile.endpointId.equals(getSelfId())) {
+                peerProfiles.put(profile.endpointId, profile);
+                // Notify all listeners
+                for (ConnectionHelper.ConnectionStatusListener l : listeners) {
+                    l.onProfileReceived(profile);
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("MeshManager", "Failed to parse JSON profile", e);
+        }
+    }
+
+    /**
+     * Get all survivors excluding self.
+     */
+    public List<PeerProfile> getSurvivorsExcludingSelf() {
+        String selfId = getSelfId();
+        List<PeerProfile> result = new ArrayList<>();
+        for (PeerProfile p : peerProfiles.values()) {
+            if (p.isSurvivor() && !p.endpointId.equals(selfId)) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get all peers excluding self.
+     */
+    public List<PeerProfile> getPeerProfilesExcludingSelf() {
+        String selfId = getSelfId();
+        List<PeerProfile> result = new ArrayList<>(peerProfiles.values());
+        result.removeIf(p -> p.endpointId.equals(selfId));
+        return result;
     }
 
     // ── Listener registration ─────────────────────────────────────────────────

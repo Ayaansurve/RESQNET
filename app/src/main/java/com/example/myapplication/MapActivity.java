@@ -16,9 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
 
-
-
-
 import com.example.myapplication.ConnectionHelper;
 import com.example.myapplication.MeshManager;
 import com.example.myapplication.databinding.ActivityMapBinding;
@@ -32,7 +29,7 @@ public class MapActivity extends AppCompatActivity
     private ActivityMapBinding binding;
     private MeshMapView mapView;
 
-    private boolean isOn "com.mappls.sdk:mappls-android-sdk:8.1.0"lineMode = false;
+    private boolean isOnlineMode = false;
     private View onlineMapView; // placeholder for Google/Mapbox view
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -348,9 +345,19 @@ public class MapActivity extends AppCompatActivity
         private void drawPeers(Canvas canvas, float cx, float cy) {
             if (peers == null || peers.isEmpty()) return;
 
-            int count = peers.size();
+            // Filter: exclude self, include survivors only
+            String selfId = MeshManager.getInstance().getSelfId();
+            List<PeerProfile> triagePeers = new java.util.ArrayList<>();
+
+            for (PeerProfile peer : peers) {
+                if (!peer.endpointId.equals(selfId) && peer.isSurvivor()) {
+                    triagePeers.add(peer);
+                }
+            }
+
+            int count = triagePeers.size();
             for (int i = 0; i < count; i++) {
-                PeerProfile peer = peers.get(i);
+                PeerProfile peer = triagePeers.get(i);
 
                 double angle    = (2 * Math.PI * i) / count - Math.PI / 2;
                 float  distance = 90f + (i * 40f % 100f);
