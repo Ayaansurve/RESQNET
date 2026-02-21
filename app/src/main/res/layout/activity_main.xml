@@ -75,6 +75,17 @@
     </LinearLayout>
 
     <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- SNACKBAR CONTAINER — Top-anchored, below mesh status header        -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <FrameLayout
+        android:id="@+id/snackbarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="56dp"
+        android:background="#000000"
+        android:elevation="8dp" />
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
     <!-- SCROLLABLE CONTENT                                                 -->
     <!-- ══════════════════════════════════════════════════════════════════ -->
     <ScrollView

@@ -144,10 +144,35 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showComingSoon(String name) {
-        Snackbar.make(binding.getRoot(), name + " — coming soon",
-                        Snackbar.LENGTH_SHORT)
-                .setBackgroundTint(getColor(R.color.snackbar_bg))
-                .setTextColor(getColor(R.color.text_primary)).show();
+        showTopSnackbar(name + " — coming soon", Snackbar.LENGTH_SHORT);
+    }
+
+    // ── Top Snackbar Helpers ──────────────────────────────────────────────────
+
+    private void showTopSnackbar(String message, int duration) {
+        if (binding == null) return;
+        Snackbar snackbar = Snackbar.make(binding.snackbarContainer, message, duration);
+        snackbar.setBackgroundTint(getColor(R.color.snackbar_bg));
+        snackbar.setTextColor(getColor(R.color.text_primary));
+        snackbar.show();
+    }
+
+    private void showTopSnackbarCritical(String message, int duration) {
+        if (binding == null) return;
+        Snackbar snackbar = Snackbar.make(binding.snackbarContainer, message, duration);
+        snackbar.setBackgroundTint(getColor(R.color.triage_critical));
+        snackbar.setTextColor(0xFFFFFFFF);
+        snackbar.show();
+    }
+
+    private void showTopSnackbarAction(String message, int duration, String actionText) {
+        if (binding == null) return;
+        Snackbar snackbar = Snackbar.make(binding.snackbarContainer, message, duration);
+        snackbar.setBackgroundTint(getColor(R.color.triage_critical));
+        snackbar.setTextColor(0xFFFFFFFF);
+        snackbar.setAction(actionText, v -> {});
+        snackbar.setActionTextColor(0xFFFFFFFF);
+        snackbar.show();
     }
 
     // ── SOS ───────────────────────────────────────────────────────────────────
@@ -158,18 +183,14 @@ public class MainActivity extends AppCompatActivity
                     AnimationUtils.loadAnimation(this, R.anim.anim_sos_pulse));
             int peers = MeshManager.getInstance().getPeerCount();
             if (peers == 0) {
-                Snackbar.make(binding.getRoot(),
-                                "No peers connected yet — keep device visible",
-                                Snackbar.LENGTH_LONG)
-                        .setBackgroundTint(getColor(R.color.triage_critical))
-                        .setTextColor(0xFFFFFFFF).show();
+                showTopSnackbarCritical(
+                        "No peers connected yet — keep device visible",
+                        Snackbar.LENGTH_LONG);
             } else {
                 MeshManager.getInstance().broadcastSOS();
-                Snackbar.make(binding.getRoot(),
-                                "⚠ SOS SENT to " + peers + " peer(s)",
-                                Snackbar.LENGTH_LONG)
-                        .setBackgroundTint(getColor(R.color.triage_critical))
-                        .setTextColor(0xFFFFFFFF).show();
+                showTopSnackbarCritical(
+                        "⚠ SOS SENT to " + peers + " peer(s)",
+                        Snackbar.LENGTH_LONG);
             }
         });
     }
@@ -232,13 +253,11 @@ public class MainActivity extends AppCompatActivity
         if (binding == null) return;
         String role = ConnectionHelper.parseRoleFromEndpointName(endpointName);
         String name = ConnectionHelper.parseNameFromEndpointName(endpointName);
-        Snackbar.make(binding.getRoot(),
-                        "VOLUNTEER".equals(role)
-                                ? "🟢 Volunteer nearby: " + name
-                                : "📍 Survivor detected nearby",
-                        Snackbar.LENGTH_SHORT)
-                .setBackgroundTint(getColor(R.color.snackbar_bg))
-                .setTextColor(getColor(R.color.text_primary)).show();
+        showTopSnackbar(
+                "VOLUNTEER".equals(role)
+                        ? "🟢 Volunteer nearby: " + name
+                        : "📍 Survivor detected nearby",
+                Snackbar.LENGTH_SHORT);
     }
 
     @Override public void onPeerDisconnected(String id) {}
@@ -252,13 +271,10 @@ public class MainActivity extends AppCompatActivity
                 () -> { if (binding != null)
                     binding.getRoot().setBackgroundColor(
                             getColor(R.color.true_black)); }, 400);
-        Snackbar.make(binding.getRoot(),
-                        "⚠ SOS RECEIVED — Someone nearby needs help!",
-                        Snackbar.LENGTH_INDEFINITE)
-                .setAction("OK", v -> {})
-                .setBackgroundTint(getColor(R.color.triage_critical))
-                .setTextColor(0xFFFFFFFF)
-                .setActionTextColor(0xFFFFFFFF).show();
+        showTopSnackbarAction(
+                "⚠ SOS RECEIVED — Someone nearby needs help!",
+                Snackbar.LENGTH_INDEFINITE,
+                "OK");
     }
 
     // ── Animation ─────────────────────────────────────────────────────────────
