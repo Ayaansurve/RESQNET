@@ -137,7 +137,8 @@ public class MainActivity extends AppCompatActivity
     // ── Quick actions ─────────────────────────────────────────────────────────
 
     private void setupQuickActionButtons() {
-        binding.btnTriage.setOnClickListener(v -> showComingSoon("Triage Queue"));
+        binding.btnTriage.setOnClickListener(v ->
+                startActivity(new Intent(this, TriageActivity.class)));
         binding.btnSupply.setOnClickListener(v -> showComingSoon("Supply Log"));
         binding.btnMap.setOnClickListener(v ->
                 startActivity(new Intent(this, MapActivity.class)));

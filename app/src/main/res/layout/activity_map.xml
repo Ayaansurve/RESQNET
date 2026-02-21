@@ -32,6 +32,13 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <FrameLayout
+        android:id="@+id/onlineMapContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
     <!-- Legend card — floats bottom-left over the map -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"

@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">RESQNET</string>
+
+    <!-- Triage Activity -->
+    <string name="triage_title">Survivor Triage</string>
+    <string name="triage_summary">Survivor Triage Summary</string>
+    <string name="triage_description">Survivors are prioritized by injury severity and age. Critical cases are marked in red, followed by urgent cases in orange.</string>
+    <string name="triage_refresh">🔄 Refresh Triage List</string>
+    <string name="triage_no_survivors">No survivors connected yet.\nWaiting for mesh to form&#8230;</string>
+    <string name="triage_rescue_sequence">Recommended Rescue Sequence</string>
 </resources>

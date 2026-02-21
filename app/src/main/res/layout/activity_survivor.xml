@@ -267,6 +267,45 @@
                             android:gravity="end" />
                     </LinearLayout>
 
+                    <!-- Age -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Your age"
+                        android:textColor="#888888"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderAge"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:valueFrom="0"
+                            android:valueTo="100"
+                            android:stepSize="1"
+                            android:value="30"
+                            app:thumbColor="#FF4F00"
+                            app:trackColorActive="#FF4F00"
+                            app:trackColorInactive="#2A2A2A" />
+
+                        <TextView
+                            android:id="@+id/tvAge"
+                            android:layout_width="64dp"
+                            android:layout_height="wrap_content"
+                            android:text="Age: 30 years"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:gravity="end" />
+                    </LinearLayout>
+
                     <!-- Injury level -->
                     <TextView
                         android:layout_width="wrap_content"

@@ -24,6 +24,7 @@ public class SurvivorActivity extends AppCompatActivity
         implements ConnectionHelper.ConnectionStatusListener {
 
     public static final String KEY_SURVIVOR_LOCATION    = "survivor_location";
+    public static final String KEY_SURVIVOR_AGE         = "survivor_age";
     public static final String KEY_SURVIVOR_PEOPLE      = "survivor_people_count";
     public static final String KEY_SURVIVOR_INJURY      = "survivor_injury_level";
     public static final String KEY_SURVIVOR_DESCRIPTION = "survivor_description";
@@ -103,6 +104,7 @@ public class SurvivorActivity extends AppCompatActivity
         String desc = prefs.getString(KEY_SURVIVOR_DESCRIPTION, "");
         int people  = prefs.getInt(KEY_SURVIVOR_PEOPLE, 1);
         int injury  = prefs.getInt(KEY_SURVIVOR_INJURY, 0);
+        int age     = prefs.getInt(KEY_SURVIVOR_AGE, 30);
 
         if (!loc.isEmpty())  binding.etLocation.setText(loc);
         if (!desc.isEmpty()) binding.etDescription.setText(desc);
@@ -113,6 +115,16 @@ public class SurvivorActivity extends AppCompatActivity
             int c = (int) v;
             binding.tvPeopleCount.setText(c + (c == 1 ? " person" : " people"));
         });
+
+        // Restore age slider
+        if (binding.sliderAge != null) {
+            binding.sliderAge.setValue(age);
+            binding.tvAge.setText("Age: " + age + " years");
+            binding.sliderAge.addOnChangeListener((s, v, f) -> {
+                int a = (int) v;
+                binding.tvAge.setText("Age: " + a + " years");
+            });
+        }
 
         switch (injury) {
             case 1:  binding.rbMinor.setChecked(true);   break;
@@ -162,11 +174,13 @@ public class SurvivorActivity extends AppCompatActivity
             String desc = binding.etDescription.getText() != null
                     ? binding.etDescription.getText().toString().trim() : "";
             int people  = (int) binding.sliderPeopleCount.getValue();
+            int age     = binding.sliderAge != null ? (int) binding.sliderAge.getValue() : 30;
             int injury  = binding.rbMinor.isChecked() ? 1
                     : binding.rbSerious.isChecked() ? 2 : 0;
 
             prefs.edit()
                     .putString(KEY_SURVIVOR_LOCATION, loc)
+                    .putInt(KEY_SURVIVOR_AGE, age)
                     .putString(KEY_SURVIVOR_DESCRIPTION, desc)
                     .putInt(KEY_SURVIVOR_PEOPLE, people)
                     .putInt(KEY_SURVIVOR_INJURY, injury)

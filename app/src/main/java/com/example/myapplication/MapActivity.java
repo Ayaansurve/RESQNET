@@ -32,6 +32,8 @@ public class MapActivity extends AppCompatActivity
     private ActivityMapBinding binding;
     private MeshMapView mapView;
 
+    private boolean isOn "com.mappls.sdk:mappls-android-sdk:8.1.0"lineMode = false;
+    private View onlineMapView; // placeholder for Google/Mapbox view
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +48,15 @@ public class MapActivity extends AppCompatActivity
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
+        onlineMapView = new View(this); // replace later with real map fragment/view
+        binding.onlineMapContainer.addView(
+                onlineMapView,
+                new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT
+                )
+        );
+
         setupLegend();
         setupRefreshButton();
     }
@@ -55,7 +66,10 @@ public class MapActivity extends AppCompatActivity
         super.onResume();
         MeshManager.getInstance().addListener(this);
         mapView.refreshPeers();
-        mapView.startPulse();
+
+        if (!isOnlineMode) {
+            mapView.startPulse();
+        }
     }
 
     @Override
@@ -89,6 +103,31 @@ public class MapActivity extends AppCompatActivity
                     .setBackgroundTint(0xFF1A1A1A)
                     .setTextColor(0xFFFFFFFF).show();
         });
+
+        binding.btnRefreshMap.setOnLongClickListener(v -> {
+            setMapMode(!isOnlineMode);
+
+            Snackbar.make(binding.getRoot(),
+                    isOnlineMode ? "Online map enabled" : "Offline mesh map enabled",
+                    Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(0xFF1A1A1A)
+                    .setTextColor(0xFFFFFFFF).show();
+
+            return true;
+        });
+    }
+
+    private void setMapMode(boolean online) {
+        isOnlineMode = online;
+
+        binding.mapContainer.setVisibility(online ? View.GONE : View.VISIBLE);
+        binding.onlineMapContainer.setVisibility(online ? View.VISIBLE : View.GONE);
+
+        if (online) {
+            mapView.stopPulse();
+        } else {
+            mapView.startPulse();
+        }
     }
 
     // ── Listener ──────────────────────────────────────────────────────────────
