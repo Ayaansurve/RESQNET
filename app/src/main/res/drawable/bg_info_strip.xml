@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- bg_info_strip.xml
+     Subtle rounded rectangle used behind the "No internet required" info row
+     in activity_main.xml. Very slightly lighter than the true-black background
+     so the notice stands out without competing with the role cards.
+     Used in: activity_main.xml (LinearLayout offline notice) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <solid android:color="#0D0D0D" />
+
+    <stroke
+        android:width="1dp"
+        android:color="#1F1F1F" />
+
+    <corners android:radius="10dp" />
+
+</shape>

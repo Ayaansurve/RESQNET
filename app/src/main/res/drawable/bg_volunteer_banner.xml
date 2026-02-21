@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- bg_volunteer_banner.xml
+     Rounded rectangle with a faint orange left-border accent.
+     Used behind the "Your skills will be broadcast…" info banner
+     at the top of activity_volunteer.xml.
+     The left stroke gives a "callout" feel without being too loud. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Main fill -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#0D0D0D" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+
+    <!-- Orange left accent bar (4dp wide) -->
+    <item android:right="0dp" android:top="0dp" android:bottom="0dp"
+        android:width="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF4F00" />
+            <corners android:topLeftRadius="10dp"
+                android:bottomLeftRadius="10dp" />
+        </shape>
+    </item>
+
+</layer-list>

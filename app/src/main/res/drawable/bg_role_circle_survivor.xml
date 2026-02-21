@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- bg_role_circle_survivor.xml
+     64x64dp circular background behind the Survivor icon on the role card.
+     Dark orange tint so the white icon sits on a recognisable coloured disc.
+     Used in: activity_main.xml (FrameLayout wrapping ic_survivor) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <!-- Deep orange at ~25% opacity gives colour without blowing out contrast -->
+    <solid android:color="#40FF4F00" />
+
+    <stroke
+        android:width="1dp"
+        android:color="#66FF4F00" />
+
+    <size
+        android:width="64dp"
+        android:height="64dp" />
+
+</shape>

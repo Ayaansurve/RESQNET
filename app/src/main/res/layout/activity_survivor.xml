@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:fitsSystemWindows="true"
+    tools:context=".SurvivorActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#000000"
+            app:navigationIconTint="#FF4F00"
+            app:titleTextColor="#FFFFFF" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="140dp"
+        android:scrollbars="none"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="16dp">
+
+            <!-- ── Hero block ──────────────────────────────────────────── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingVertical="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="I NEED HELP"
+                    android:textColor="#FFFFFF"
+                    android:textSize="32sp"
+                    android:fontFamily="sans-serif-black"
+                    android:letterSpacing="0.04"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tvBroadcastingLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="BROADCASTING FOR HELP"
+                    android:textColor="#FF4F00"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.1"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tvPeerStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No rescuers detected yet"
+                    android:textColor="#666666"
+                    android:textSize="14sp"
+                    tools:text="2 rescuers in range" />
+
+            </LinearLayout>
+
+            <!-- ── SOS button ─────────────────────────────────────────── -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSos"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginBottom="8dp"
+                android:text="⚠  SOS  ⚠"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.1"
+                app:backgroundTint="#FF4F00"
+                app:cornerRadius="16dp"
+                app:elevation="0dp" />
+
+            <TextView
+                android:id="@+id/tvSosConfirmation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="⚠ SOS SENT"
+                android:textColor="#FF4F00"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:paddingVertical="8dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone" />
+
+            <!-- ── MAP BUTTON ─────────────────────────────────────────── -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOpenMap"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="24dp"
+                android:text="VIEW MAP — See Volunteers Near You"
+                android:textColor="#FFC107"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                app:strokeColor="#FFC107"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_map_offline"
+                app:iconTint="#FFC107" />
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!-- NEARBY VOLUNTEERS SECTION                                  -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NEARBY VOLUNTEERS"
+                android:textColor="#555555"
+                android:textSize="10sp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.15"
+                android:layout_marginBottom="10dp" />
+
+            <!-- Empty state — shown when no volunteers are connected -->
+            <TextView
+                android:id="@+id/tvNoVolunteers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No volunteers detected yet.\nKeep this screen on and stay still."
+                android:textColor="#444444"
+                android:textSize="13sp"
+                android:gravity="center"
+                android:paddingVertical="20dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_info_strip"
+                android:lineSpacingMultiplier="1.4"
+                android:visibility="visible" />
+
+            <!-- Dynamic volunteer cards added here by SurvivorActivity.java -->
+            <LinearLayout
+                android:id="@+id/layoutVolunteerCards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp"
+                android:visibility="gone" />
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!-- SITUATION FORM                                             -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#0D0D0D"
+                app:cardCornerRadius="16dp"
+                app:strokeColor="#1F1F1F"
+                app:strokeWidth="1dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="YOUR SITUATION"
+                            android:textColor="#CCCCCC"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:letterSpacing="0.12" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Shared with rescuers"
+                            android:textColor="#444444"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <!-- Location -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilLocation"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Where are you? (floor, room, landmark)"
+                        app:boxStrokeColor="#333333"
+                        app:boxBackgroundColor="#111111"
+                        app:hintTextColor="#666666"
+                        app:startIconDrawable="@drawable/ic_map_offline"
+                        app:startIconTint="#555555">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etLocation"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:textColor="#FFFFFF"
+                            android:inputType="textCapSentences"
+                            android:imeOptions="actionNext" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- People count -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="People with you"
+                        android:textColor="#888888"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderPeopleCount"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:valueFrom="1"
+                            android:valueTo="20"
+                            android:stepSize="1"
+                            android:value="1"
+                            app:thumbColor="#FF4F00"
+                            app:trackColorActive="#FF4F00"
+                            app:trackColorInactive="#2A2A2A" />
+
+                        <TextView
+                            android:id="@+id/tvPeopleCount"
+                            android:layout_width="64dp"
+                            android:layout_height="wrap_content"
+                            android:text="1 person"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:gravity="end" />
+                    </LinearLayout>
+
+                    <!-- Injury level -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Injury level"
+                        android:textColor="#888888"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="10dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rgInjuryLevel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="20dp">
+
+                        <RadioButton
+                            android:id="@+id/rbNone"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="None"
+                            android:textColor="#CCCCCC"
+                            android:textSize="13sp"
+                            android:button="@null"
+                            android:checked="true"
+                            android:gravity="center"
+                            android:background="@drawable/bg_radio_option"
+                            android:layout_marginEnd="6dp" />
+
+                        <RadioButton
+                            android:id="@+id/rbMinor"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="Minor"
+                            android:textColor="#CCCCCC"
+                            android:textSize="13sp"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:background="@drawable/bg_radio_option"
+                            android:layout_marginEnd="6dp" />
+
+                        <RadioButton
+                            android:id="@+id/rbSerious"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="Serious"
+                            android:textColor="#FF4444"
+                            android:textSize="13sp"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:background="@drawable/bg_radio_option" />
+                    </RadioGroup>
+
+                    <!-- Description -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilDescription"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:hint="Any other info for rescuers (optional)"
+                        app:boxStrokeColor="#333333"
+                        app:boxBackgroundColor="#111111"
+                        app:hintTextColor="#666666">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDescription"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minLines="3"
+                            android:textColor="#FFFFFF"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:gravity="top" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSaveInfo"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="SAVE &amp; BROADCAST SITUATION"
+                        android:textColor="#FF4F00"
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif-medium"
+                        app:strokeColor="#FF4F00"
+                        app:cornerRadius="12dp" />
+
+                    <TextView
+                        android:id="@+id/tvSavedConfirmation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="✓ Info saved"
+                        android:textColor="#00C853"
+                        android:textSize="12sp"
+                        android:gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

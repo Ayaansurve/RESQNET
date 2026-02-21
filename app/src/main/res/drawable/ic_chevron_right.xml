@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_supplies.xml
+     Open box / inventory icon — used on the SUPPLIES quick-action button
+     in activity_main.xml.
+     Tinted #2196F3 (Signal Blue) in the layout. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M20,6h-2.18c0.07,-0.31 0.18,-0.61 0.18,-0.93A2.07,2.07 0,0 0,16 3a3.24,3.24 0,0 0,-2.57 1.26L12,6.1 10.57,4.26A3.24,3.24 0,0 0,8 3a2.07,2.07 0,0 0,-2 2.07c0,0.32 0.11,0.62 0.18,0.93H4A2,2 0,0 0,2 8v12a2,2 0,0 0,2 2H20a2,2 0,0 0,2 -2V8A2,2 0,0 0,20 6z
+                          M8,5a0.07,0.07 0,0 1,0.07 0.07A1.24,1.24 0,0 0,9.33 6.28L8,8 6.67,6.28A1.24,1.24 0,0 0,7.93 5.07,0.07 0.07,0 0,1 8,5z
+                          M16,5a0.07,0.07 0,0 1,0.07 0.07A1.24,1.24 0,0 0,17.33 6.28L16,8 14.67,6.28A1.24,1.24 0,0 0,15.93 5.07,0.07 0.07,0 0,1 16,5z
+                          M20,20H4V8H20V20z" />
+
+</vector>

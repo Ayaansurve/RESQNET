@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    res/anim/anim_sos_pulse.xml
+    ─────────────────────────────────────────────────────────────────────────
+    Used in: MainActivity.java → binding.btnSos.startAnimation(...)
+             SurvivorActivity.java → binding.btnSos (alpha pulse on tap)
+
+    Behaviour: Three rapid scale pulses + alpha flash.
+    The button visibly "throbs" to confirm the SOS was triggered —
+    critical tactile-equivalent feedback for a high-stress single tap.
+
+    Total duration: ~600ms — long enough to feel, short enough not to block.
+    ─────────────────────────────────────────────────────────────────────────
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+    android:fillAfter="false">
+
+    <!-- Scale pulse: grows slightly then snaps back — "heartbeat" feel -->
+    <scale
+        android:fromXScale="1.0"
+        android:toXScale="1.06"
+        android:fromYScale="1.0"
+        android:toYScale="1.06"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:duration="100"
+        android:startOffset="0"
+        android:repeatCount="2"
+        android:repeatMode="reverse" />
+
+    <!-- Alpha flash: dims briefly on each pulse to simulate a strobe -->
+    <alpha
+        android:fromAlpha="1.0"
+        android:toAlpha="0.55"
+        android:duration="100"
+        android:startOffset="0"
+        android:repeatCount="2"
+        android:repeatMode="reverse" />
+
+</set>

@@ -1,201 +1,305 @@
 package com.example.myapplication;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.os.Build;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.snackbar.Snackbar;
+import com.example.myapplication.ConnectionHelper;
+import com.example.myapplication.MeshManager;
+import com.example.myapplication.databinding.ActivityMainBinding;
+import com.example.myapplication.PeerProfile;
+import com.example.myapplication.PermissionHelper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements ConnectionHelper.ConnectionStatusListener {
 
-    // UI Components
-    private TextView statusLabel;
-    private EditText messageInput;
-    private RecyclerView recyclerView;
-    private ImageButton sendButton; // Changed to ImageButton to match the new UI
-    private SosFlashlight sosFlashlight;
+    public static final String PREFS_NAME     = "resqnet_prefs";
+    public static final String KEY_USER_ROLE  = "user_role";
+    public static final String KEY_USER_NAME  = "user_name";
+    public static final String ROLE_SURVIVOR  = "SURVIVOR";
+    public static final String ROLE_VOLUNTEER = "VOLUNTEER";
 
-    // Adapters & Logic
-    private ChatAdapter chatAdapter;
-    private BleLinkManager bleManager;
+    private ActivityMainBinding binding;
+    private SharedPreferences prefs;
 
-    // Permission Code
-    private static final int PERMISSION_REQUEST_CODE = 101;
+    // FIX: single Handler + Runnable reference so we can always cancel
+    // before restarting. Previously if onResume fired twice (back navigation,
+    // screen rotation) two loops ran simultaneously causing flicker.
+    private final Handler pulseHandler = new Handler(Looper.getMainLooper());
+    private Runnable pulseRunnable;
+    private boolean isPulseRunning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        // 1. Initialize UI Elements
-        statusLabel = findViewById(R.id.statusLabel);
-        messageInput = findViewById(R.id.messageInput);
-        recyclerView = findViewById(R.id.recyclerView);
-        sendButton = findViewById(R.id.sendButton);
+        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        MeshManager.getInstance().init(this, getSavedRole());
 
-        // 2. Setup the Chat List (RecyclerView)
-        chatAdapter = new ChatAdapter();
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(chatAdapter);
+        setupStatusBar();
+        setupRoleCards();
+        setupQuickActionButtons();
+        setupSosButton();
+        restoreRoleUI(getSavedRole());
 
-        // 3. Initialize the Offline Mesh Manager
-        bleManager = new BleLinkManager(this, new BleLinkManager.MessageListener() {
-            @Override
-            public void onMessageReceived(String message) {
-                // Must run on UI thread to update the screen
-                runOnUiThread(() -> {
-                    chatAdapter.addMessage(message, false); // false = received from others
-                    scrollToBottom();
-                });
-            }
-
-            @Override
-            public void onStatusUpdate(String status) {
-                runOnUiThread(() -> {
-                    // Check if status contains signal strength
-                    if (status.contains("dBm")) {
-                        // Extract number (e.g., -60)
-                        // Logic: -40 is CLOSE, -90 is FAR
-                        statusLabel.setText(status);
-
-                        // Visual Color Coding
-                        if (status.contains("-4") || status.contains("-5")) {
-                            statusLabel.setTextColor(getColor(android.R.color.holo_green_light)); // Very Close
-                        } else if (status.contains("-9")) {
-                            statusLabel.setTextColor(getColor(android.R.color.holo_red_light)); // Far away
-                        } else {
-                            statusLabel.setTextColor(getColor(R.color.safety_orange)); // Medium
-                        }
-                    } else {
-                        statusLabel.setText(status.toUpperCase());
-                    }
-                });
-            }
-        });
-
-        // 4. Check Permissions & Start Automatically
-        if (checkAndRequestPermissions()) {
-            startMeshNetwork();
+        if (PermissionHelper.allGranted(this)) {
+            MeshManager.getInstance().startMesh();
+        } else {
+            PermissionHelper.requestAll(this);
         }
-
-        // 5. Send Button Logic
-        sendButton.setOnClickListener(v -> {
-            String msg = messageInput.getText().toString().trim();
-            if (!msg.isEmpty()) {
-                // Send via Bluetooth
-                bleManager.sendMessage(msg);
-
-                // Show on my screen immediately
-                chatAdapter.addMessage(msg, true); // true = sent by me
-                scrollToBottom();
-
-                // Clear input
-                messageInput.setText("");
-            }
-        });
-        sosFlashlight = new SosFlashlight(this);
-        ImageButton btnSos = findViewById(R.id.btnSos);
-
-        btnSos.setOnClickListener(v -> {
-            // Toggle logic
-            if (btnSos.isSelected()) {
-                sosFlashlight.stopSos();
-                btnSos.setSelected(false);
-                Toast.makeText(this, "SOS Stopped", Toast.LENGTH_SHORT).show();
-            } else {
-                sosFlashlight.startSos();
-                btnSos.setSelected(true);
-                Toast.makeText(this, "SOS Broadcasting!", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    // Helper to auto-scroll to the newest message
-    private void scrollToBottom() {
-        if (chatAdapter.getItemCount() > 0) {
-            recyclerView.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
-        }
-    }
-
-    private void startMeshNetwork() {
-        // Start acting as both a Server (Receiver) and Client (Scanner)
-        bleManager.startServer();
-        bleManager.startScanning();
-        Toast.makeText(this, "RESQNET Started: Scanning...", Toast.LENGTH_SHORT).show();
-    }
-
-    // --- PERMISSION HANDLING (Crucial for Android 12+) ---
-
-    private boolean checkAndRequestPermissions() {
-        List<String> neededPermissions = new ArrayList<>();
-
-        // Android 12+ (API 31+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
-                    != PackageManager.PERMISSION_GRANTED) {
-                neededPermissions.add(Manifest.permission.BLUETOOTH_SCAN);
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-                    != PackageManager.PERMISSION_GRANTED) {
-                neededPermissions.add(Manifest.permission.BLUETOOTH_CONNECT);
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                neededPermissions.add(Manifest.permission.BLUETOOTH_ADVERTISE);
-            }
-        }
-        // Android 11 and below (Legacy)
-        else {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                neededPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-            }
-        }
-
-        if (!neededPermissions.isEmpty()) {
-            ActivityCompat.requestPermissions(this,
-                    neededPermissions.toArray(new String[0]),
-                    PERMISSION_REQUEST_CODE);
-            return false;
-        }
-        return true;
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    protected void onResume() {
+        super.onResume();
+        MeshManager.getInstance().addListener(this);
+        restoreRoleUI(getSavedRole());
+        // FIX: stop any existing pulse before starting a new one
+        stopPulseAnimation();
+        startPulseAnimation();
+        onPeerCountChanged(MeshManager.getInstance().getPeerCount());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MeshManager.getInstance().removeListener(this);
+        stopPulseAnimation();
+        // FIX: cancel any in-progress view animations so they don't
+        // fire withEndAction() after the view is detached
+        if (binding != null) {
+            binding.viewStatusDot.animate().cancel();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null; // prevent any pending Runnables from accessing views
+        if (isFinishing()) {
+            MeshManager.getInstance().stopMesh();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            boolean allGranted = true;
-            for (int result : grantResults) {
-                if (result != PackageManager.PERMISSION_GRANTED) {
-                    allGranted = false;
-                    break;
-                }
-            }
-
-            if (allGranted) {
-                startMeshNetwork();
+        if (requestCode == PermissionHelper.REQUEST_CODE) {
+            if (PermissionHelper.allGranted(this)) {
+                MeshManager.getInstance().startMesh();
             } else {
-                Toast.makeText(this, "Permissions Missing. App cannot function.", Toast.LENGTH_LONG).show();
-                statusLabel.setText("PERMISSION DENIED");
+                if (binding == null) return;
+                binding.tvMeshStatus.setText("PERMISSIONS DENIED — Mesh disabled");
+                binding.tvMeshStatus.setTextColor(getColor(R.color.triage_critical));
+                Toast.makeText(this,
+                        "Permissions required. Please grant them in Settings.",
+                        Toast.LENGTH_LONG).show();
             }
         }
     }
 
+    // ── Status bar ────────────────────────────────────────────────────────────
 
+    private void setupStatusBar() {
+        binding.tvMeshStatus.setText("SCANNING FOR PEERS…");
+        binding.tvPeerCount.setText("0 nearby");
+        binding.viewStatusDot.setBackgroundResource(R.drawable.dot_scanning);
+    }
+
+    // ── Role cards ────────────────────────────────────────────────────────────
+
+    private void setupRoleCards() {
+        binding.cardSurvivor.setOnClickListener(v -> {
+            animateCardPress(binding.cardSurvivor);
+            setRole(ROLE_SURVIVOR);
+            startActivity(new Intent(this, SurvivorActivity.class));
+        });
+        binding.cardVolunteer.setOnClickListener(v -> {
+            animateCardPress(binding.cardVolunteer);
+            setRole(ROLE_VOLUNTEER);
+            startActivity(new Intent(this, VolunteerActivity.class));
+        });
+    }
+
+    // ── Quick actions ─────────────────────────────────────────────────────────
+
+    private void setupQuickActionButtons() {
+        binding.btnTriage.setOnClickListener(v -> showComingSoon("Triage Queue"));
+        binding.btnSupply.setOnClickListener(v -> showComingSoon("Supply Log"));
+        binding.btnMap.setOnClickListener(v ->
+                startActivity(new Intent(this, MapActivity.class)));
+    }
+
+    private void showComingSoon(String name) {
+        Snackbar.make(binding.getRoot(), name + " — coming soon",
+                        Snackbar.LENGTH_SHORT)
+                .setBackgroundTint(getColor(R.color.snackbar_bg))
+                .setTextColor(getColor(R.color.text_primary)).show();
+    }
+
+    // ── SOS ───────────────────────────────────────────────────────────────────
+
+    private void setupSosButton() {
+        binding.btnSos.setOnClickListener(v -> {
+            binding.btnSos.startAnimation(
+                    AnimationUtils.loadAnimation(this, R.anim.anim_sos_pulse));
+            int peers = MeshManager.getInstance().getPeerCount();
+            if (peers == 0) {
+                Snackbar.make(binding.getRoot(),
+                                "No peers connected yet — keep device visible",
+                                Snackbar.LENGTH_LONG)
+                        .setBackgroundTint(getColor(R.color.triage_critical))
+                        .setTextColor(0xFFFFFFFF).show();
+            } else {
+                MeshManager.getInstance().broadcastSOS();
+                Snackbar.make(binding.getRoot(),
+                                "⚠ SOS SENT to " + peers + " peer(s)",
+                                Snackbar.LENGTH_LONG)
+                        .setBackgroundTint(getColor(R.color.triage_critical))
+                        .setTextColor(0xFFFFFFFF).show();
+            }
+        });
+    }
+
+    // ── Role ──────────────────────────────────────────────────────────────────
+
+    private void setRole(String role) {
+        prefs.edit().putString(KEY_USER_ROLE, role).apply();
+        MeshManager.getInstance().updateRole(role);
+        restoreRoleUI(role);
+    }
+
+    private String getSavedRole() {
+        return prefs.getString(KEY_USER_ROLE, ROLE_SURVIVOR);
+    }
+
+    private void restoreRoleUI(String role) {
+        if (binding == null) return;
+        boolean isSurvivor  = ROLE_SURVIVOR.equals(role);
+        boolean isVolunteer = ROLE_VOLUNTEER.equals(role);
+
+        binding.cardSurvivor.setStrokeColor(isSurvivor
+                ? getColor(R.color.international_orange)
+                : getColor(R.color.card_border_inactive));
+        binding.cardVolunteer.setStrokeColor(isVolunteer
+                ? getColor(R.color.international_orange)
+                : getColor(R.color.card_border_inactive));
+
+        binding.tvActiveBadgeSurvivor.setVisibility(
+                isSurvivor ? View.VISIBLE : View.GONE);
+        binding.tvActiveBadgeVolunteer.setVisibility(
+                isVolunteer ? View.VISIBLE : View.GONE);
+
+        String savedName = prefs.getString(KEY_USER_NAME, "");
+        binding.tvVolunteerSubtitle.setText(
+                (isVolunteer && !savedName.isEmpty())
+                        ? "Active as: " + savedName
+                        : "Register your skills & equipment");
+    }
+
+    // ── ConnectionStatusListener ──────────────────────────────────────────────
+
+    @Override
+    public void onPeerCountChanged(int peerCount) {
+        if (binding == null) return;
+        binding.tvPeerCount.setText(peerCount + " nearby");
+        if (peerCount > 0) {
+            binding.tvMeshStatus.setText("MESH ACTIVE");
+            binding.tvMeshStatus.setTextColor(getColor(R.color.mesh_active_green));
+            binding.viewStatusDot.setBackgroundResource(R.drawable.dot_active);
+        } else {
+            binding.tvMeshStatus.setText("SCANNING…");
+            binding.tvMeshStatus.setTextColor(getColor(R.color.text_secondary));
+            binding.viewStatusDot.setBackgroundResource(R.drawable.dot_scanning);
+        }
+    }
+
+    @Override
+    public void onPeerConnected(String endpointName) {
+        if (binding == null) return;
+        String role = ConnectionHelper.parseRoleFromEndpointName(endpointName);
+        String name = ConnectionHelper.parseNameFromEndpointName(endpointName);
+        Snackbar.make(binding.getRoot(),
+                        "VOLUNTEER".equals(role)
+                                ? "🟢 Volunteer nearby: " + name
+                                : "📍 Survivor detected nearby",
+                        Snackbar.LENGTH_SHORT)
+                .setBackgroundTint(getColor(R.color.snackbar_bg))
+                .setTextColor(getColor(R.color.text_primary)).show();
+    }
+
+    @Override public void onPeerDisconnected(String id) {}
+    @Override public void onProfileReceived(PeerProfile p) {}
+
+    @Override
+    public void onSosReceived(String fromNodeId) {
+        if (binding == null) return;
+        binding.getRoot().setBackgroundColor(0x33FF0000);
+        binding.getRoot().postDelayed(
+                () -> { if (binding != null)
+                    binding.getRoot().setBackgroundColor(
+                            getColor(R.color.true_black)); }, 400);
+        Snackbar.make(binding.getRoot(),
+                        "⚠ SOS RECEIVED — Someone nearby needs help!",
+                        Snackbar.LENGTH_INDEFINITE)
+                .setAction("OK", v -> {})
+                .setBackgroundTint(getColor(R.color.triage_critical))
+                .setTextColor(0xFFFFFFFF)
+                .setActionTextColor(0xFFFFFFFF).show();
+    }
+
+    // ── Animation ─────────────────────────────────────────────────────────────
+
+    private void animateCardPress(MaterialCardView card) {
+        card.startAnimation(
+                AnimationUtils.loadAnimation(this, R.anim.anim_card_press));
+    }
+
+    private void startPulseAnimation() {
+        if (isPulseRunning) return; // guard against double-start
+        isPulseRunning = true;
+        pulseRunnable  = new Runnable() {
+            @Override public void run() {
+                // FIX: null-check binding before every access
+                if (binding == null || !isPulseRunning) return;
+                binding.viewStatusDot.animate()
+                        .alpha(0.3f)
+                        .setDuration(600)
+                        .withEndAction(() -> {
+                            if (binding == null || !isPulseRunning) return;
+                            binding.viewStatusDot.animate()
+                                    .alpha(1f)
+                                    .setDuration(600)
+                                    .withEndAction(() -> {
+                                        if (isPulseRunning) {
+                                            pulseHandler.postDelayed(
+                                                    pulseRunnable, 200);
+                                        }
+                                    }).start();
+                        }).start();
+            }
+        };
+        pulseHandler.post(pulseRunnable);
+    }
+
+    private void stopPulseAnimation() {
+        isPulseRunning = false;
+        if (pulseRunnable != null) {
+            pulseHandler.removeCallbacks(pulseRunnable);
+            pulseRunnable = null;
+        }
+    }
 }

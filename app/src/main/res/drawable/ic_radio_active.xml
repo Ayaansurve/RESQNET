@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_radio_active.xml
+     Cell tower / signal strength icon — used in the Network Health card
+     in the dashboard to represent radio duty cycle status.
+     Tinted based on duty cycle mode in the Java code. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Tower mast -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,3L2,12h3v9h4v-6h6v6h4V12h3L12,3z" />
+
+    <!-- Signal arcs (top right corner decoration) -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M15.5,5.5 A5,5 0 0 1 18.5,8.5" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M17,4 A7.5,7.5 0 0 1 21,8" />
+
+</vector>

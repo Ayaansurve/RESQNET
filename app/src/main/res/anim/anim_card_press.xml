@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    res/anim/anim_card_press.xml
+    ─────────────────────────────────────────────────────────────────────────
+    Used in: MainActivity.java → animateCardPress(binding.cardSurvivor / cardVolunteer)
+
+    Behaviour: A gentle scale-down + scale-back, like the card is physically
+    being pressed and released. Gives clear tactile-equivalent confirmation
+    that the role selection registered — important for shaky/gloved hands
+    who might not be sure if their tap landed.
+
+    Total duration: ~200ms — snappy, not distracting.
+    ─────────────────────────────────────────────────────────────────────────
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+    android:fillAfter="false">
+
+    <!-- Shrink down slightly (press in) -->
+    <scale
+        android:fromXScale="1.0"
+        android:toXScale="0.97"
+        android:fromYScale="1.0"
+        android:toYScale="0.97"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:duration="80"
+        android:startOffset="0" />
+
+    <!-- Bounce back to full size (release) -->
+    <scale
+        android:fromXScale="0.97"
+        android:toXScale="1.0"
+        android:fromYScale="0.97"
+        android:toYScale="1.0"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:duration="120"
+        android:startOffset="80" />
+
+</set>

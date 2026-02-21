@@ -1,10 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    res/values/colors.xml — RESQNET Color System
+    ════════════════════════════════════════════════
+    Palette: "Tactical Clarity"
+      #000000 → True Black (OLED background, saves battery)
+      #FF4F00 → International Orange (all primary actions)
+      #00C853 → Rescue Green (volunteer / active / safe)
+      #FF0000 → Alert Red (CRITICAL triage)
+      #FFA500 → Amber (URGENT triage)
+      #2196F3 → Signal Blue (equipment / info)
+-->
 <resources>
-    <color name="black_background">#121212</color>
-    <color name="dark_surface">#1E1E1E</color>
-    <color name="safety_orange">#FF5722</color>
+
+    <!-- ── Core brand colours ──────────────────────────────────────────── -->
+    <color name="true_black">#000000</color>
+    <color name="international_orange">#FF4F00</color>
+    <color name="rescue_green">#00C853</color>
+
+    <!-- ── Surface / background tiers ────────────────────────────────── -->
+    <color name="surface_0">#000000</color>   <!-- True black — base background -->
+    <color name="surface_1">#0A0A0A</color>   <!-- Cards, header bar -->
+    <color name="surface_2">#0D0D0D</color>   <!-- Elevated cards -->
+    <color name="surface_3">#111111</color>   <!-- Pressed states -->
+
+    <!-- ── Text ───────────────────────────────────────────────────────── -->
     <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#B0B0B0</color>
-    <color name="sent_bubble">#FF5722</color>
-    <color name="received_bubble">#2C2C2C</color>
+    <color name="text_secondary">#CCCCCC</color>
+    <color name="text_tertiary">#888888</color>
+    <color name="text_disabled">#555555</color>
+    <color name="text_hint">#444444</color>
+
+    <!-- ── Border / stroke ───────────────────────────────────────────── -->
+    <color name="card_border_inactive">#2A2A2A</color>
+    <color name="card_border_active">#FF4F00</color>
+    <color name="chip_bg">#111111</color>
+    <color name="chip_stroke">#333333</color>
+
+    <!-- ── Status / semantic ─────────────────────────────────────────── -->
+    <color name="mesh_active_green">#00C853</color>
+    <color name="mesh_scanning_amber">#FFC107</color>
+    <color name="triage_critical">#FF0000</color>
+    <color name="triage_urgent">#FFA500</color>
+    <color name="triage_stable">#00C853</color>
+    <color name="triage_expectant">#212121</color>
+
+    <!-- ── Snackbar ───────────────────────────────────────────────────── -->
+    <color name="snackbar_bg">#1A1A1A</color>
+
+    <!-- ── Text field stroke (selector referenced in XML) ────────────── -->
+    <color name="text_field_stroke">#333333</color>
+
 </resources>

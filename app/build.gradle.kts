@@ -3,10 +3,14 @@ plugins {
 }
 
 android {
-    namespace = "com.example.myapplication"
-    compileSdk {
-        version = release(36)
+
+    buildFeatures {
+        viewBinding = true
+        dataBinding = true
     }
+    namespace = "com.example.myapplication"
+    compileSdk = 36
+
 
     defaultConfig {
         applicationId = "com.example.myapplication"
@@ -34,8 +38,8 @@ android {
 }
 
 dependencies {
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("com.google.android.gms:play-services-nearby:19.1.0")
+    implementation("androidx.annotation:annotation:1.8.0") // Or the latest version
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

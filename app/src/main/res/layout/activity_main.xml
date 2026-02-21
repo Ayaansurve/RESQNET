@@ -1,83 +1,452 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    activity_main.xml — RESQNET Home Hub
+    ══════════════════════════════════════════════════════════════════════════
+    Design Language: "Tactical Clarity"
+      ▸ True Black (#000000) background — OLED battery saving
+      ▸ International Orange (#FF4F00) — all primary actions
+      ▸ 72dp minimum touch targets — usable with shaking/gloved hands
+      ▸ Large, unambiguous labels — readable in smoke/low-light
+      ▸ One-thumb reach: SOS and role cards accessible from bottom grip
+    ══════════════════════════════════════════════════════════════════════════
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black_background">
+    android:background="#000000"
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity">
 
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- MESH STATUS HEADER — Always visible, non-scrollable               -->
+    <!-- This strip shows connection status at a glance.                   -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
     <LinearLayout
-        android:id="@+id/topBar"
+        android:id="@+id/headerMeshStatus"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/dark_surface"
-        android:padding="16dp"
+        android:layout_height="56dp"
+        android:background="#0A0A0A"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        app:layout_constraintTop_toTopOf="parent">
+        android:paddingHorizontal="20dp"
+        android:elevation="4dp">
 
+        <!-- Pulsing status dot -->
+        <View
+            android:id="@+id/viewStatusDot"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:background="@drawable/dot_scanning"
+            android:layout_marginEnd="10dp" />
+
+        <!-- Mesh status text -->
         <TextView
+            android:id="@+id/tvMeshStatus"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="RESQNET"
-            android:textColor="@color/safety_orange"
-            android:textStyle="bold"
-            android:textSize="20sp"/>
+            android:text="SCANNING…"
+            android:textColor="#888888"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.12"
+            tools:text="MESH ACTIVE" />
 
-        <TextView
-            android:id="@+id/statusLabel"
+        <!-- Peer count badge -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/tvPeerCount"
+            style="@style/Widget.Material3.Chip.Assist"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OFFLINE"
-            android:textColor="#F44336"
-            android:textStyle="bold"
-            android:textSize="14sp"/>
+            android:layout_height="32dp"
+            android:text="0 nearby"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            app:chipBackgroundColor="#1A1A1A"
+            app:chipStrokeColor="#333333"
+            app:chipStrokeWidth="1dp"
+            app:chipIconVisible="true"
+            app:chipIcon="@drawable/ic_mesh_peers"
+            app:chipIconTint="#FF4F00"
+            tools:text="3 nearby" />
+
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- SCROLLABLE CONTENT                                                 -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
-        app:layout_constraintBottom_toTopOf="@id/inputArea"/>
+        android:layout_height="match_parent"
+        android:layout_marginTop="56dp"
+        android:background="#000000"
+        android:clipToPadding="false"
+        android:paddingBottom="120dp"
+        android:scrollbars="none"
+        android:fillViewport="true">
 
-    <LinearLayout
-        android:id="@+id/inputArea"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/dark_surface"
-        android:padding="10dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <EditText
-            android:id="@+id/messageInput"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@null"
-            android:hint="Type SOS message..."
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/text_secondary"
-            android:padding="10dp"
-            android:maxLines="3"/>
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="24dp">
 
-        <ImageButton
-            android:id="@+id/sendButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_bubble_sent"
-            android:src="@android:drawable/ic_menu_send"
-            app:tint="#FFFFFF"/>
+            <!-- ──────────────────────────────────────────────────────── -->
+            <!-- APP LOGO / TITLE BLOCK                                   -->
+            <!-- ──────────────────────────────────────────────────────── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="32dp">
 
-        <ImageButton
-            android:id="@+id/btnSos"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/bg_bubble_sent"
-            android:src="@android:drawable/ic_lock_idle_alarm"
-            app:tint="#FFFFFF"
-            android:layout_marginStart="10dp"/>
-    </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RESQNET"
+                    android:textColor="#FF4F00"
+                    android:textSize="36sp"
+                    android:fontFamily="sans-serif-black"
+                    android:letterSpacing="0.08" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Offline Disaster Network"
+                    android:textColor="#555555"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif"
+                    android:layout_marginTop="2dp" />
+
+            </LinearLayout>
+
+            <!-- ──────────────────────────────────────────────────────── -->
+            <!-- SECTION LABEL: WHO ARE YOU?                             -->
+            <!-- ──────────────────────────────────────────────────────── -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SELECT YOUR ROLE"
+                android:textColor="#555555"
+                android:textSize="10sp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.15"
+                android:layout_marginBottom="12dp" />
+
+            <!-- ──────────────────────────────────────────────────────── -->
+            <!-- ROLE CARD 1: "I NEED HELP" — SURVIVOR                   -->
+            <!-- Large card, high-contrast, entire surface is tappable   -->
+            <!-- ──────────────────────────────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSurvivor"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:layout_marginBottom="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardBackgroundColor="#0D0D0D"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#2A2A2A"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="20dp">
+
+                    <!-- Icon block -->
+                    <FrameLayout
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:background="@drawable/bg_role_circle_survivor"
+                        android:layout_marginEnd="20dp">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_survivor"
+                            android:contentDescription="Survivor icon"
+                            app:tint="#FFFFFF" />
+                    </FrameLayout>
+
+                    <!-- Text block -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="I NEED HELP"
+                            android:textColor="#FFFFFF"
+                            android:textSize="22sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.02" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Survivor Mode"
+                            android:textColor="#FF4F00"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginTop="2dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Broadcast your location to nearby rescuers"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:layout_marginTop="6dp"
+                            android:maxLines="2" />
+                    </LinearLayout>
+
+                    <!-- Active badge (shown when this role is selected) -->
+                    <TextView
+                        android:id="@+id/tvActiveBadgeSurvivor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ACTIVE"
+                        android:textColor="#FF4F00"
+                        android:textSize="9sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.1"
+                        android:background="@drawable/bg_active_badge"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ──────────────────────────────────────────────────────── -->
+            <!-- ROLE CARD 2: "I CAN HELP" — VOLUNTEER                   -->
+            <!-- ──────────────────────────────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardVolunteer"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:layout_marginBottom="28dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardBackgroundColor="#0D0D0D"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#2A2A2A"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="20dp">
+
+                    <!-- Icon block -->
+                    <FrameLayout
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:background="@drawable/bg_role_circle_volunteer"
+                        android:layout_marginEnd="20dp">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_volunteer"
+                            android:contentDescription="Volunteer icon"
+                            app:tint="#FFFFFF" />
+                    </FrameLayout>
+
+                    <!-- Text block -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="I CAN HELP"
+                            android:textColor="#FFFFFF"
+                            android:textSize="22sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.02" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Volunteer / Rescuer Mode"
+                            android:textColor="#00C853"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginTop="2dp" />
+
+                        <TextView
+                            android:id="@+id/tvVolunteerSubtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Register your skills &amp; equipment"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:layout_marginTop="6dp"
+                            android:maxLines="2"
+                            tools:text="Active as: Maria K." />
+                    </LinearLayout>
+
+                    <!-- Active badge -->
+                    <TextView
+                        android:id="@+id/tvActiveBadgeVolunteer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ACTIVE"
+                        android:textColor="#00C853"
+                        android:textSize="9sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.1"
+                        android:background="@drawable/bg_active_badge_green"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ──────────────────────────────────────────────────────── -->
+            <!-- OFFLINE NOTICE — Reassures user that no internet needed  -->
+            <!-- ──────────────────────────────────────────────────────── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_info_strip"
+                android:padding="14dp"
+                android:layout_marginBottom="28dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_wifi_off"
+                    app:tint="#888888"
+                    android:contentDescription="Offline"
+                    android:layout_marginEnd="10dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No internet required. Data saves locally and broadcasts via Bluetooth / Wi-Fi Direct."
+                    android:textColor="#777777"
+                    android:textSize="12sp"
+                    android:lineSpacingMultiplier="1.3" />
+
+            </LinearLayout>
+
+            <!-- ──────────────────────────────────────────────────────── -->
+            <!-- QUICK ACTIONS ROW                                        -->
+            <!-- ──────────────────────────────────────────────────────── -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QUICK ACTIONS"
+                android:textColor="#555555"
+                android:textSize="10sp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.15"
+                android:layout_marginBottom="12dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <!-- Triage button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTriage"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="TRIAGE"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    app:strokeColor="#333333"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_triage"
+                    app:iconTint="#FF4F00" />
+
+                <!-- Supply Log button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSupply"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="SUPPLIES"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    app:strokeColor="#333333"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_supplies"
+                    app:iconTint="#2196F3" />
+
+                <!-- Map button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMap"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:text="MAP"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    app:strokeColor="#333333"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_map_offline"
+                    app:iconTint="#FFC107" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- SOS BUTTON — Fixed at bottom, always accessible                   -->
+    <!-- 80dp height → exceeds minimum 48dp for shaky hands                -->
+    <!-- Anchored to bottom with margin so it floats above navigation bar  -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btnSos"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="16dp"
+        android:text="⚠  SEND SOS  ⚠"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-black"
+        android:letterSpacing="0.08"
+        android:contentDescription="Send emergency SOS broadcast to all nearby devices"
+        app:backgroundTint="#FF4F00"
+        app:elevation="12dp"
+        app:pressedTranslationZ="20dp" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_mesh_active.xml
+     Three connected nodes forming a triangle — represents the P2P mesh network.
+     Used in the MaterialToolbar navigation icon slot.
+     Tinted #FF4F00 (International Orange) in the layout. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Node circles -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,3 A2,2 0 1 1 12,7 A2,2 0 1 1 12,3z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M4,17 A2,2 0 1 1 4,21 A2,2 0 1 1 4,17z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M20,17 A2,2 0 1 1 20,21 A2,2 0 1 1 20,17z" />
+
+    <!-- Connecting lines -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M12,7 L5,17" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M12,7 L19,17" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M6,19 L18,19" />
+
+</vector>

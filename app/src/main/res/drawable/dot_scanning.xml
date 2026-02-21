@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- dot_scanning.xml
+     Amber circle shown when the mesh is scanning but no peers are found.
+     MainActivity animates this with alpha pulses to signal "searching".
+     Used in: activity_main.xml (viewStatusDot default state) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <solid android:color="#FFC107" />
+
+    <size
+        android:width="10dp"
+        android:height="10dp" />
+
+</shape>

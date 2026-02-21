@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_survivor.xml
+     Person raising hand icon — represents a survivor calling for help.
+     Tinted white in the layout via app:tint="#FFFFFF".
+     24x24dp viewport, Material Design style. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Head -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,12c2.21,0 4,-1.79 4,-4s-1.79,-4 -4,-4 -4,1.79 -4,4 1.79,4 4,4z" />
+
+    <!-- Body / raised arm silhouette -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,14c-4,0 -8,2 -8,4v1h16v-1c0,-2 -4,-4 -8,-4z" />
+
+    <!-- Raised right hand -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M18,5l-1,5h2l-1,-5z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M16.5,4.5 A1.5,1.5 0 1 1 19.5,4.5 A1.5,1.5 0 1 1 16.5,4.5" />
+
+</vector>

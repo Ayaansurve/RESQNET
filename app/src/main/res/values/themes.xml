@@ -1,9 +1,59 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.MyApplication" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<!-- ─────────────────────────────────────────────────────────────────────────
+     res/values/themes.xml
+     FIX: The Material theme parent is required for MaterialCardView,
+     MaterialButton, ChipGroup etc. to render correctly.
+     Without it you get: "IllegalArgumentException: The style on this
+     component requires your app theme to be Theme.MaterialComponents"
+     ───────────────────────────────────────────────────────────────────────── -->
+<resources>
+
+    <style name="Theme.ResqNet" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- Brand colours wired into the Material theme system -->
+        <item name="colorPrimary">@color/international_orange</item>
+        <item name="colorOnPrimary">@color/text_primary</item>
+        <item name="colorPrimaryContainer">#1A0C00</item>
+        <item name="colorOnPrimaryContainer">@color/international_orange</item>
+
+        <item name="colorSecondary">@color/rescue_green</item>
+        <item name="colorOnSecondary">@color/true_black</item>
+
+        <!-- True black window background — OLED battery saving -->
+        <item name="android:windowBackground">@color/true_black</item>
+        <item name="colorSurface">@color/surface_1</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_2</item>
+
+        <!-- Status bar matches the header strip -->
+        <item name="android:statusBarColor">@color/surface_1</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Navigation bar matches the background -->
+        <item name="android:navigationBarColor">@color/true_black</item>
+
+        <!-- Remove default ActionBar (we use MaterialToolbar manually) -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
     </style>
 
-    <style name="Theme.MyApplication" parent="Base.Theme.MyApplication" />
+    <!-- Toolbar title style -->
+    <style name="TextAppearance.ResqNet.Toolbar"
+        parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textColor">@color/international_orange</item>
+        <item name="android:textSize">18sp</item>
+        <item name="fontFamily">sans-serif-black</item>
+        <item name="android:letterSpacing">0.06</item>
+    </style>
+
 </resources>
+
+
+    <!-- ─────────────────────────────────────────────────────────────────────────
+         res/values/strings.xml
+         ───────────────────────────────────────────────────────────────────────── -->
+    <!--
+    <resources>
+        <string name="app_name">RESQNET</string>
+    </resources>
+    -->

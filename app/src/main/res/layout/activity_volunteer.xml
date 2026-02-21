@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    activity_volunteer.xml — Volunteer Registration Form
+    ══════════════════════════════════════════════════════════════════════════
+    Design Principles:
+      ▸ Form-first layout in a NestedScrollView
+      ▸ Chip groups for multi-select skills (faster than dropdowns)
+      ▸ All fields optional except name — lower barrier during emergency
+      ▸ "Saved offline" indicator gives immediate reassurance
+      ▸ 56dp+ input fields for gloved/shaky hand accessibility
+    ══════════════════════════════════════════════════════════════════════════
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:fitsSystemWindows="true"
+    tools:context=".VolunteerActivity">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#0A0A0A"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#0A0A0A"
+            app:title="Volunteer Registration"
+            app:titleTextColor="#FFFFFF"
+            app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            app:navigationIconTint="#FF4F00" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Scrollable form body -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="20dp">
+
+            <!-- ── Broadcast info banner ─────────────────────────────── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_volunteer_banner"
+                android:padding="14dp"
+                android:layout_marginBottom="24dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_broadcast"
+                    app:tint="#FF4F00"
+                    android:layout_marginEnd="12dp"
+                    android:contentDescription="Broadcast" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Your name and skills will be broadcast to nearby survivors via Bluetooth. No internet needed."
+                    android:textColor="#CCCCCC"
+                    android:textSize="12sp"
+                    android:lineSpacingMultiplier="1.3" />
+
+            </LinearLayout>
+
+            <!-- ══════════════════════════════════════════════════════ -->
+            <!-- SECTION 1: IDENTITY                                    -->
+            <!-- ══════════════════════════════════════════════════════ -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="YOUR IDENTITY"
+                android:textColor="#555555"
+                android:textSize="10sp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.15"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Name field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilName"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="Your Name *"
+                app:boxStrokeColor="@color/text_field_stroke"
+                app:boxBackgroundColor="#0D0D0D"
+                app:hintTextColor="#888888"
+                app:startIconDrawable="@drawable/ic_person"
+                app:startIconTint="#555555">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etName"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#555555"
+                    android:inputType="textPersonName|textCapWords"
+                    android:imeOptions="actionNext" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Emergency contact field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilEmergencyContact"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="28dp"
+                android:hint="Emergency Contact (optional)"
+                app:boxStrokeColor="@color/text_field_stroke"
+                app:boxBackgroundColor="#0D0D0D"
+                app:hintTextColor="#888888"
+                app:startIconDrawable="@drawable/ic_contact"
+                app:startIconTint="#555555">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEmergencyContact"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#555555"
+                    android:inputType="textPersonName|textCapWords"
+                    android:imeOptions="actionDone" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ══════════════════════════════════════════════════════ -->
+            <!-- SECTION 2: MEDICAL SKILLS                              -->
+            <!-- ChipGroup allows multi-select without a dropdown       -->
+            <!-- ══════════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_medical"
+                    app:tint="#FF4F00"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="Medical skills" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MEDICAL SKILLS"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="  · select all that apply"
+                    android:textColor="#555555"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupSkills"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="28dp"
+                app:selectionRequired="false"
+                app:singleSelection="false">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipNone"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="None"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#FF4F00" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFirstAid"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="First Aid"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#FF4F00" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCPR"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="CPR"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#FF4F00" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipEMT"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="EMT"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#FF4F00" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipNurse"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="Nurse / Paramedic"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#FF4F00" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipDoctor"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="Doctor"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#FF4F00" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- ══════════════════════════════════════════════════════ -->
+            <!-- SECTION 3: EQUIPMENT                                   -->
+            <!-- ══════════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_equipment"
+                    app:tint="#2196F3"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="Equipment" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="EQUIPMENT AVAILABLE"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium" />
+
+            </LinearLayout>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupEquipment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                app:selectionRequired="false"
+                app:singleSelection="false">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFlashlight"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="🔦 Flashlight"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#2196F3" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipRope"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="🪢 Rope"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#2196F3" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipVehicle"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="🚗 Vehicle"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#2196F3" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFirstAidKit"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="🩹 First Aid Kit"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#2196F3" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipRadio"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="📻 Radio"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#2196F3" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipGenerator"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="⚡ Generator"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:checkedIconTint="#2196F3" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- ── Saved indicator (hidden until first save) ──────────── -->
+            <TextView
+                android:id="@+id/tvSavedIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="✓ Profile saved offline"
+                android:textColor="#00C853"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <!-- Save button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveProfile"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:layout_marginBottom="16dp"
+                android:text="SAVE &amp; START BROADCASTING"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.04"
+                app:backgroundTint="#FF4F00"
+                app:cornerRadius="14dp"
+                app:icon="@drawable/ic_broadcast"
+                app:iconTint="#FFFFFF"
+                app:iconPadding="8dp"
+                app:elevation="0dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
