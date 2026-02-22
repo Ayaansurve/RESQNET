@@ -23,6 +23,15 @@ import com.example.myapplication.PeerProfile;
 
 import java.util.List;
 
+/**
+ * MapActivity — Visualises nearby mesh peers on a radar-style map.
+ * 
+ * Features:
+ * - Radar-style "MeshMapView" for offline proximity tracking.
+ * - Support for toggling to an online map mode (placeholder).
+ * - Real-time updates when peers connect/disconnect or send data.
+ * - Interaction via pinch-to-zoom and panning.
+ */
 public class MapActivity extends AppCompatActivity
         implements ConnectionHelper.ConnectionStatusListener {
 
@@ -31,6 +40,7 @@ public class MapActivity extends AppCompatActivity
 
     private boolean isOnlineMode = false;
     private View onlineMapView; // placeholder for Google/Mapbox view
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,13 +49,15 @@ public class MapActivity extends AppCompatActivity
 
         setupToolbar();
 
+        // Initialize the custom radar view and add it to the container
         mapView = new MeshMapView(this);
         binding.mapContainer.addView(mapView,
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
-        onlineMapView = new View(this); // replace later with real map fragment/view
+        // Setup placeholder for online map (e.g. Google Maps)
+        onlineMapView = new View(this);
         binding.onlineMapContainer.addView(
                 onlineMapView,
                 new FrameLayout.LayoutParams(
@@ -61,9 +73,11 @@ public class MapActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        // Start listening for mesh network updates
         MeshManager.getInstance().addListener(this);
         mapView.refreshPeers();
 
+        // Resume radar pulse animation if in mesh mode
         if (!isOnlineMode) {
             mapView.startPulse();
         }
@@ -72,11 +86,12 @@ public class MapActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
+        // Stop updates and animations when activity is not in foreground
         MeshManager.getInstance().removeListener(this);
-        // FIX: always stop the animator when not visible
         mapView.stopPulse();
     }
 
+    /** Configures the action bar with a back button and title. */
     private void setupToolbar() {
         setSupportActionBar(binding.mapToolbar);
         if (getSupportActionBar() != null) {
@@ -86,12 +101,14 @@ public class MapActivity extends AppCompatActivity
         binding.mapToolbar.setNavigationOnClickListener(v -> finish());
     }
 
+    /** Sets colors for the map legend dots to match the radar markers. */
     private void setupLegend() {
         binding.legendVolunteerDot.setBackgroundColor(0xFF00C853);
         binding.legendSurvivorDot.setBackgroundColor(0xFFFF4F00);
         binding.legendSelfDot.setBackgroundColor(0xFF2196F3);
     }
 
+    /** Configures tap (refresh) and long-press (toggle mode) behavior for the refresh button. */
     private void setupRefreshButton() {
         binding.btnRefreshMap.setOnClickListener(v -> {
             mapView.refreshPeers();
@@ -114,6 +131,7 @@ public class MapActivity extends AppCompatActivity
         });
     }
 
+    /** Toggles visibility between the custom MeshMapView and the online map container. */
     private void setMapMode(boolean online) {
         isOnlineMode = online;
 
@@ -127,13 +145,14 @@ public class MapActivity extends AppCompatActivity
         }
     }
 
-    // ── Listener ──────────────────────────────────────────────────────────────
-    // FIX: only redraw when data actually changes — not on every callback
+    // ── Mesh Network Callbacks ────────────────────────────────────────────────
 
     @Override public void onPeerCountChanged(int c)    { mapView.refreshPeers(); }
     @Override public void onPeerConnected(String n)    { mapView.refreshPeers(); }
     @Override public void onPeerDisconnected(String id){ mapView.refreshPeers(); }
     @Override public void onProfileReceived(PeerProfile p) { mapView.refreshPeers(); }
+
+    /** Displays a high-priority alert when an SOS signal is detected nearby. */
     @Override public void onSosReceived(String nodeId) {
         runOnUiThread(() ->
                 Snackbar.make(binding.getRoot(),
@@ -144,12 +163,12 @@ public class MapActivity extends AppCompatActivity
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // MeshMapView
+    // MeshMapView — A custom hardware-accelerated radar view
     // ══════════════════════════════════════════════════════════════════════════
 
     static class MeshMapView extends View {
 
-        // ── Paint objects — allocated once, never inside onDraw ───────────────
+        // Pre-allocated Paint objects to avoid allocations during onDraw()
         private final Paint paintBackground = new Paint();
         private final Paint paintGrid       = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint paintRing       = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -164,10 +183,9 @@ public class MapActivity extends AppCompatActivity
         private final Paint paintPeerGlow   = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint paintRingLabel  = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-        // ── Peer data snapshot ────────────────────────────────────────────────
         private List<PeerProfile> peers;
 
-        // ── Zoom / pan ────────────────────────────────────────────────────────
+        // Viewport state for panning and zooming
         private float scaleFactor = 1.0f;
         private float translateX  = 0f;
         private float translateY  = 0f;
@@ -175,12 +193,9 @@ public class MapActivity extends AppCompatActivity
         private float lastTouchY  = 0f;
         private boolean isPanning = false;
 
-        // ── FIX: ValueAnimator replaces the 30ms Handler loop ─────────────────
-        // ValueAnimator is hardware-accelerated and tied to Choreographer
-        // (the display vsync). It fires at exactly 60fps max — not 33fps
-        // uncontrolled. When the screen is off it automatically pauses.
+        // Hardware-accelerated pulse animation tied to display refresh rate
         private ValueAnimator pulseAnimator;
-        private float pulseProgress = 0f; // 0.0 → 1.0, drives radius + alpha
+        private float pulseProgress = 0f; // 0.0 → 1.0
 
         private static final float[] RING_RADII = {60f, 120f, 200f};
         private static final String[] RING_LABELS = {"CLOSE", "NEAR", "FAR"};
@@ -190,7 +205,8 @@ public class MapActivity extends AppCompatActivity
 
         public MeshMapView(Context ctx) {
             super(ctx);
-            setLayerType(LAYER_TYPE_HARDWARE, null); // GPU compositing
+            // Enable hardware layer for smoother scaling/panning performance
+            setLayerType(LAYER_TYPE_HARDWARE, null);
 
             // ── Paint setup ──────────────────────────────────────────────
             paintBackground.setColor(0xFF000000);
@@ -235,7 +251,7 @@ public class MapActivity extends AppCompatActivity
             paintHint.setTextSize(22f);
             paintHint.setAntiAlias(true);
 
-            // ── Gesture detectors ────────────────────────────────────────
+            // Setup gesture detection for pinch-zoom
             scaleDetector = new ScaleGestureDetector(ctx,
                     new ScaleGestureDetector.SimpleOnScaleGestureListener() {
                         @Override public boolean onScale(ScaleGestureDetector d) {
@@ -245,6 +261,7 @@ public class MapActivity extends AppCompatActivity
                         }
                     });
 
+            // Setup gesture detection for double-tap reset
             gestureDetector = new GestureDetector(ctx,
                     new GestureDetector.SimpleOnGestureListener() {
                         @Override public boolean onDoubleTap(MotionEvent e) {
@@ -257,8 +274,7 @@ public class MapActivity extends AppCompatActivity
             peers = MeshManager.getInstance().getPeerProfiles();
         }
 
-        // ── FIX: ValueAnimator-based pulse — no manual Handler loop ───────────
-
+        /** Starts the radar pulse animation loop. */
         public void startPulse() {
             if (pulseAnimator != null && pulseAnimator.isRunning()) return;
 
@@ -269,11 +285,12 @@ public class MapActivity extends AppCompatActivity
             pulseAnimator.setInterpolator(new LinearInterpolator());
             pulseAnimator.addUpdateListener(anim -> {
                 pulseProgress = (float) anim.getAnimatedValue();
-                invalidate(); // only fires at vsync rate (~60fps max)
+                invalidate(); // Triggers redraw at display VSync rate
             });
             pulseAnimator.start();
         }
 
+        /** Cancels the pulse animation loop. */
         public void stopPulse() {
             if (pulseAnimator != null) {
                 pulseAnimator.cancel();
@@ -281,23 +298,23 @@ public class MapActivity extends AppCompatActivity
             }
         }
 
-        /** Called when peer data changes — snapshots the list and redraws once. */
+        /** Updates the peer list from MeshManager and triggers a redraw. */
         public void refreshPeers() {
             peers = MeshManager.getInstance().getPeerProfiles();
-            invalidate(); // single redraw, not a loop
+            invalidate();
         }
 
-        // ── Drawing ───────────────────────────────────────────────────────────
+        // ── Rendering logic ───────────────────────────────────────────────────
 
         @Override
         protected void onDraw(Canvas canvas) {
-            // Do NOT allocate objects here — all Paints are pre-built above
-
+            // View center point adjusted for current pan offset
             float cx = getWidth()  / 2f + translateX;
             float cy = getHeight() / 2f + translateY;
 
             canvas.drawPaint(paintBackground);
             canvas.save();
+            // Apply zoom centered on the screen center
             canvas.scale(scaleFactor, scaleFactor, getWidth() / 2f, getHeight() / 2f);
 
             drawGrid(canvas, cx, cy);
@@ -309,6 +326,7 @@ public class MapActivity extends AppCompatActivity
             drawHud(canvas);
         }
 
+        /** Draws a static background grid for spatial reference. */
         private void drawGrid(Canvas canvas, float cx, float cy) {
             float step = 80f;
             for (float x = cx % step; x < getWidth(); x += step)
@@ -317,6 +335,7 @@ public class MapActivity extends AppCompatActivity
                 canvas.drawLine(0, y, getWidth(), y, paintGrid);
         }
 
+        /** Draws the circular distance reference rings. */
         private void drawRings(Canvas canvas, float cx, float cy) {
             for (int i = 0; i < RING_RADII.length; i++) {
                 canvas.drawCircle(cx, cy, RING_RADII[i], paintRing);
@@ -327,28 +346,28 @@ public class MapActivity extends AppCompatActivity
             }
         }
 
+        /** Draws the central marker representing the current user and its pulse effect. */
         private void drawSelf(Canvas canvas, float cx, float cy) {
-            // Pulse ring driven by ValueAnimator progress (0→1)
+            // Animated pulse ring driven by ValueAnimator
             float pulseR     = 18f + pulseProgress * 50f;
             int   pulseAlpha = (int)((1f - pulseProgress) * 60f);
             paintSelfGlow.setColor(0x002196F3 | (pulseAlpha << 24));
             canvas.drawCircle(cx, cy, pulseR, paintSelfGlow);
 
-            // Self dot
+            // Central blue dot
             canvas.drawCircle(cx, cy, 18f, paintSelf);
-
-            // Label
             paintLabel.setColor(0xFFFFFFFF);
             canvas.drawText("YOU", cx + 22f, cy + 8f, paintLabel);
         }
 
+        /** Draws all nearby peers discovered via the mesh network. */
         private void drawPeers(Canvas canvas, float cx, float cy) {
             if (peers == null || peers.isEmpty()) return;
 
-            // Filter: exclude self, include survivors only
             String selfId = MeshManager.getInstance().getSelfId();
             List<PeerProfile> triagePeers = new java.util.ArrayList<>();
 
+            // Filter peers to display only relevant triage-eligible survivors
             for (PeerProfile peer : peers) {
                 if (!peer.endpointId.equals(selfId) && peer.isSurvivor()) {
                     triagePeers.add(peer);
@@ -359,27 +378,28 @@ public class MapActivity extends AppCompatActivity
             for (int i = 0; i < count; i++) {
                 PeerProfile peer = triagePeers.get(i);
 
+                // Calculate marker position based on index (procedural radar layout)
                 double angle    = (2 * Math.PI * i) / count - Math.PI / 2;
                 float  distance = 90f + (i * 40f % 100f);
                 float  px       = cx + (float)(Math.cos(angle) * distance);
                 float  py       = cy + (float)(Math.sin(angle) * distance);
 
-                // Glow
+                // Status glow based on role (Green = Volunteer, Orange = Survivor)
                 paintPeerGlow.setColor(peer.isVolunteer() ? 0x2200C853 : 0x22FF4F00);
                 canvas.drawCircle(px, py, 28f, paintPeerGlow);
 
-                // Dot
+                // Marker dot
                 canvas.drawCircle(px, py, 16f,
                         peer.isVolunteer() ? paintVolunteer : paintSurvivor);
 
-                // Name
+                // Peer name label
                 paintLabel.setColor(0xFFCCCCCC);
                 String name = (peer.name != null && !peer.name.isEmpty())
                         ? peer.name
                         : (peer.isVolunteer() ? "Volunteer" : "Survivor");
                 canvas.drawText(name, px + 20f, py + 8f, paintLabel);
 
-                // Sub-label
+                // Detailed status text (Skills or Situation)
                 if (peer.isVolunteer()
                         && peer.skills != null && !peer.skills.isEmpty()) {
                     paintSubLabel.setColor(0xFF00C853);
@@ -396,6 +416,7 @@ public class MapActivity extends AppCompatActivity
             }
         }
 
+        /** Draws the heads-up display overlay with peer count and instructions. */
         private void drawHud(Canvas canvas) {
             int count = peers != null ? peers.size() : 0;
             canvas.drawText(
@@ -406,8 +427,7 @@ public class MapActivity extends AppCompatActivity
                     32f, getHeight() - 28f, paintHint);
         }
 
-        // ── Touch ─────────────────────────────────────────────────────────────
-
+        /** Handles touch events for radar interaction (scaling and panning). */
         @Override
         public boolean onTouchEvent(MotionEvent event) {
             scaleDetector.onTouchEvent(event);
@@ -438,7 +458,8 @@ public class MapActivity extends AppCompatActivity
         @Override
         protected void onDetachedFromWindow() {
             super.onDetachedFromWindow();
-            stopPulse(); // always clean up when view is removed
+            // Ensure resources are released when view is no longer needed
+            stopPulse();
         }
     }
 }
