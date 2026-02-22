@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "778755130811",
+    "project_id": "resqnet-d65c1",
+    "storage_bucket": "resqnet-d65c1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:778755130811:android:bc75a420e9b6ff35bfb09e",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz5v1Zuysa0HjnGftLUV45cXILQezw8Ns"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
