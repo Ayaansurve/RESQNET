@@ -357,58 +357,63 @@
 
             </LinearLayout>
 
-            <!-- ──────────────────────────────────────────────────────── -->
-            <!-- QUICK ACTIONS ROW                                        -->
-            <!-- ──────────────────────────────────────────────────────── -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="QUICK ACTIONS"
-                android:textColor="#555555"
-                android:textSize="10sp"
-                android:fontFamily="sans-serif-medium"
-                android:letterSpacing="0.15"
-                android:layout_marginBottom="12dp" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="16dp">
 
-                <!-- Triage button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnChat"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:text="CHAT"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:strokeColor="#333333"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_chat_offline"
+                    app:iconTint="#9C27B0"
+                    app:paddingStart="0dp"
+                    app:paddingEnd="0dp"/>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnTriage"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="0dp"
                     android:layout_height="60dp"
                     android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="4dp"
                     android:text="TRIAGE"
                     android:textColor="#FFFFFF"
-                    android:textSize="13sp"
+                    android:textSize="11sp"
                     app:strokeColor="#333333"
                     app:cornerRadius="12dp"
                     app:icon="@drawable/ic_triage"
-                    app:iconTint="#FF4F00" />
+                    app:iconTint="#FF4F00"
+                    app:paddingStart="0dp"
+                    app:paddingEnd="0dp"/>
 
-                <!-- Supply Log button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSupply"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="0dp"
                     android:layout_height="60dp"
                     android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="4dp"
                     android:text="SUPPLIES"
                     android:textColor="#FFFFFF"
-                    android:textSize="13sp"
+                    android:textSize="11sp"
                     app:strokeColor="#333333"
                     app:cornerRadius="12dp"
                     app:icon="@drawable/ic_supplies"
-                    app:iconTint="#2196F3" />
+                    app:iconTint="#2196F3"
+                    app:paddingStart="0dp"
+                    app:paddingEnd="0dp"/>
 
-                <!-- Map button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnMap"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -417,11 +422,13 @@
                     android:layout_weight="1"
                     android:text="MAP"
                     android:textColor="#FFFFFF"
-                    android:textSize="13sp"
+                    android:textSize="11sp"
                     app:strokeColor="#333333"
                     app:cornerRadius="12dp"
                     app:icon="@drawable/ic_map_offline"
-                    app:iconTint="#FFC107" />
+                    app:iconTint="#FFC107"
+                    app:paddingStart="0dp"
+                    app:paddingEnd="0dp"/>
 
             </LinearLayout>
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    ids.xml — Declares R.id constants for views built programmatically in Java.
+
+    MapActivity.buildPeerDetailPanel() creates its views in code and assigns
+    IDs using View.setId(R.id.xxx) so they can be found later with findViewById().
+    Android requires these IDs to be declared here — otherwise R.id.xxx won't compile.
+
+    WHERE THIS FILE GOES:
+        app/src/main/res/values/ids.xml
+-->
+<resources>
+    <item name="detail_role_dot"   type="id" />
+    <item name="detail_role_label" type="id" />
+    <item name="detail_name"       type="id" />
+    <item name="detail_rows"       type="id" />
+</resources>

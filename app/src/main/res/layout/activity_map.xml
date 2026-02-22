@@ -19,25 +19,26 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="#0A0A0A"
-            app:title="Nearby Peers"
+            app:title="Peer Map"
             app:titleTextColor="#FFFFFF"
             app:navigationIconTint="#FF4F00" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Full-screen map canvas container -->
+    <!-- Full-screen map canvas -->
     <FrameLayout
         android:id="@+id/mapContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <!-- Legend card — floats bottom-left over the map -->
+    <!-- Legend card — bottom-left -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="96dp"
         app:cardBackgroundColor="#CC000000"
         app:cardCornerRadius="12dp"
         app:cardElevation="8dp"
@@ -49,21 +50,18 @@
             android:orientation="vertical"
             android:padding="14dp">
 
-            <!-- You -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginBottom="8dp">
-
                 <View
                     android:id="@+id/legendSelfDot"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:background="@drawable/dot_active"
                     android:layout_marginEnd="8dp" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -72,21 +70,18 @@
                     android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- Volunteer -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginBottom="8dp">
-
                 <View
                     android:id="@+id/legendVolunteerDot"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:background="@drawable/dot_active"
                     android:layout_marginEnd="8dp" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -95,20 +90,17 @@
                     android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- Survivor -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
-
                 <View
                     android:id="@+id/legendSurvivorDot"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:background="@drawable/dot_scanning"
                     android:layout_marginEnd="8dp" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -120,17 +112,38 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Refresh button — floats bottom-right -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btnRefreshMap"
+    <!-- FAB column — bottom-right -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="Refresh map"
-        android:src="@drawable/ic_broadcast"
-        app:backgroundTint="#FF4F00"
-        app:tint="#FFFFFF"
-        app:elevation="8dp" />
+        android:orientation="vertical"
+        android:layout_margin="16dp">
+
+        <!-- Centre/reset map -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnCentreMap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="Centre map"
+            android:src="@drawable/ic_mesh_active"
+            app:backgroundTint="#1A1A1A"
+            app:tint="#FFFFFF"
+            app:fabSize="mini"
+            app:elevation="8dp" />
+
+        <!-- Refresh peers -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnRefreshMap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Refresh map"
+            android:src="@drawable/ic_broadcast"
+            app:backgroundTint="#FF4F00"
+            app:tint="#FFFFFF"
+            app:elevation="8dp" />
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
