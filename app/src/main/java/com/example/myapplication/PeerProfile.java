@@ -10,7 +10,7 @@ package com.example.myapplication;
  *   - Volunteer skills display on the volunteer dashboard
  *
  * Wire format (pipe-delimited string for simplicity):
- *   "PROFILE|<role>|<name>|<skills>|<equipment>|<lat>|<lng>|<situation>"
+ *   "PROFILE|<role>|<name>|<skills>|<equipment>|<lat>|<lng>|<situation>|<deviceId>"
  *
  * lat/lng are 0.0 when GPS is unavailable (offline mode default).
  * situation is the survivor's free-text description, empty for volunteers.
@@ -19,7 +19,8 @@ public class PeerProfile {
 
     public static final String TYPE = "PROFILE";
 
-    public final String endpointId;  // Nearby Connections session ID
+    public final String endpointId;  // Nearby Connections session ID (temporary)
+    public final String deviceId;    // Persistent unique identifier for the device
     public final String role;        // "VOLUNTEER" or "SURVIVOR"
     public final String name;
     public final String skills;      // CSV e.g. "CPR,First Aid"
@@ -35,11 +36,12 @@ public class PeerProfile {
 
     public final long timestamp;
 
-    public PeerProfile(String endpointId, String role, String name,
+    public PeerProfile(String endpointId, String deviceId, String role, String name,
                        String skills, String equipment,
                        double lat, double lng, String situation,
                        int age, int injurySeverity, String location) {
         this.endpointId = endpointId;
+        this.deviceId   = deviceId;
         this.role       = role;
         this.name       = name;
         this.skills     = skills;
@@ -53,11 +55,20 @@ public class PeerProfile {
         this.timestamp  = System.currentTimeMillis();
     }
 
-    // Legacy constructor for backward compatibility
+    /** Constructor for triage data where deviceId isn't provided (defaults to UNKNOWN_DEVICE). */
+    public PeerProfile(String endpointId, String role, String name,
+                       String skills, String equipment,
+                       double lat, double lng, String situation,
+                       int age, int injurySeverity, String location) {
+        this(endpointId, "UNKNOWN_DEVICE", role, name, skills, equipment,
+                lat, lng, situation, age, injurySeverity, location);
+    }
+
+    // Secondary constructor for backward compatibility or cases where deviceId isn't yet known
     public PeerProfile(String endpointId, String role, String name,
                        String skills, String equipment,
                        double lat, double lng, String situation) {
-        this(endpointId, role, name, skills, equipment, lat, lng, situation, 0, 0, "");
+        this(endpointId, "UNKNOWN_DEVICE", role, name, skills, equipment, lat, lng, situation, 0, 0, "");
     }
 
     public boolean isVolunteer() {
@@ -77,7 +88,8 @@ public class PeerProfile {
                 safe(equipment) + "|" +
                 lat        + "|" +
                 lng        + "|" +
-                safe(situation);
+                safe(situation) + "|" +
+                safe(deviceId);
     }
 
     /** Serialize to JSON format for triage communication. */
@@ -99,15 +111,20 @@ public class PeerProfile {
         try {
             String[] p = raw.split("\\|", -1);
             if (p.length < 8 || !TYPE.equals(p[0])) return null;
+            
+            String deviceId = (p.length >= 9) ? p[8] : "UNKNOWN_DEVICE";
+            
             return new PeerProfile(
                     endpointId,
+                    deviceId,
                     p[1],
                     p[2],
                     p[3],
                     p[4],
                     Double.parseDouble(p[5]),
                     Double.parseDouble(p[6]),
-                    p[7]
+                    p[7],
+                    0, 0, "" // Default triage fields if parsing from wire format
             );
         } catch (Exception e) {
             return null;
@@ -121,7 +138,7 @@ public class PeerProfile {
 
     @Override
     public String toString() {
-        return "PeerProfile{role=" + role + ", name=" + name +
+        return "PeerProfile{deviceId=" + deviceId + ", role=" + role + ", name=" + name +
                 ", skills=" + skills + ", lat=" + lat + ", lng=" + lng + "}";
     }
 }

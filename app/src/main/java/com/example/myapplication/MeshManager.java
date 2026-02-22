@@ -144,6 +144,7 @@ public class MeshManager {
     /**
      * Broadcast profile as JSON to all connected peers.
      * Includes triage data (age, injury severity, location).
+     * Logs the broadcast with profile details.
      */
     public void broadcastProfileAsJson(Context context) {
         if (connectionHelper == null) return;
@@ -164,25 +165,76 @@ public class MeshManager {
                 age, injurySeverity, location);
 
         String json = myProfile.toJsonString();
+        int peerCount = connectionHelper.getPeerCount();
+
+        // Log the broadcast
+        android.util.Log.i("MeshManager",
+            "=== BROADCASTING PROFILE ===\n" +
+            "Role: " + role + "\n" +
+            "Name: " + name + "\n" +
+            "Age: " + age + "\n" +
+            "InjurySeverity: " + injurySeverity + "\n" +
+            "Location: " + (location != null && !location.isEmpty() ? location : "not set") + "\n" +
+            "Skills: " + (skills != null && !skills.isEmpty() ? skills : "none") + "\n" +
+            "Equipment: " + (equipment != null && !equipment.isEmpty() ? equipment : "none") + "\n" +
+            "Situation: " + (situation != null && !situation.isEmpty() ? situation : "none") + "\n" +
+            "Peers: " + peerCount + "\n" +
+            "JSON Size: " + json.length() + " bytes");
+
         connectionHelper.broadcastMessage("PROFILE_JSON", json);
     }
 
     /**
      * Parse incoming JSON profile and store it.
      * Called when a peer sends their profile as JSON with triage data.
+     * Logs the update with before/after comparison.
      */
     public void onJsonProfileReceived(String json) {
         try {
             PeerProfile profile = PeerProfile.fromJsonString(json);
             if (profile != null && !profile.endpointId.equals(getSelfId())) {
+                // Check if this is an update to an existing profile
+                PeerProfile oldProfile = peerProfiles.get(profile.endpointId);
+                boolean isUpdate = oldProfile != null;
+
+                // Store the new profile
                 peerProfiles.put(profile.endpointId, profile);
+
+                // Log the profile update with details
+                if (isUpdate) {
+                    android.util.Log.i("MeshManager",
+                        "=== PROFILE UPDATED ===\n" +
+                        "EndpointId: " + profile.endpointId + "\n" +
+                        "Name: " + oldProfile.name + " → " + profile.name + "\n" +
+                        "Age: " + oldProfile.age + " → " + profile.age + "\n" +
+                        "InjurySeverity: " + oldProfile.injurySeverity + " → " + profile.injurySeverity + "\n" +
+                        "Location: " + (oldProfile.location != null ? oldProfile.location : "null") +
+                        " → " + (profile.location != null ? profile.location : "null") + "\n" +
+                        "Skills: " + (oldProfile.skills != null ? oldProfile.skills : "none") +
+                        " → " + (profile.skills != null ? profile.skills : "none") + "\n" +
+                        "Situation: " + (oldProfile.situation != null ? oldProfile.situation : "none") +
+                        " → " + (profile.situation != null ? profile.situation : "none") + "\n" +
+                        "Timestamp: " + profile.timestamp);
+                } else {
+                    android.util.Log.i("MeshManager",
+                        "=== NEW PROFILE RECEIVED ===\n" +
+                        "EndpointId: " + profile.endpointId + "\n" +
+                        "Name: " + profile.name + "\n" +
+                        "Role: " + profile.role + "\n" +
+                        "Age: " + profile.age + "\n" +
+                        "InjurySeverity: " + profile.injurySeverity + "\n" +
+                        "Location: " + (profile.location != null ? profile.location : "not set") + "\n" +
+                        "Skills: " + (profile.skills != null && !profile.skills.isEmpty() ? profile.skills : "none") + "\n" +
+                        "Timestamp: " + profile.timestamp);
+                }
+
                 // Notify all listeners
                 for (ConnectionHelper.ConnectionStatusListener l : listeners) {
                     l.onProfileReceived(profile);
                 }
             }
         } catch (Exception e) {
-            android.util.Log.e("MeshManager", "Failed to parse JSON profile", e);
+            android.util.Log.e("MeshManager", "Failed to parse JSON profile: " + e.getMessage(), e);
         }
     }
 
@@ -260,8 +312,32 @@ public class MeshManager {
 
                 @Override
                 public void onProfileReceived(PeerProfile profile) {
+                    // Check if this is an update to an existing profile
+                    PeerProfile oldProfile = peerProfiles.get(profile.endpointId);
+                    boolean isUpdate = oldProfile != null;
+
                     // Store the peer's profile so any Activity can query it
                     peerProfiles.put(profile.endpointId, profile);
+
+                    // Log the profile reception
+                    if (isUpdate) {
+                        android.util.Log.i("MeshManager",
+                            ">>> PROFILE UPDATED (wire format) <<<\n" +
+                            "EndpointId: " + profile.endpointId + "\n" +
+                            "Name: " + oldProfile.name + " → " + profile.name + "\n" +
+                            "Role: " + profile.role + "\n" +
+                            "Skills: " + (oldProfile.skills != null ? oldProfile.skills : "none") +
+                            " → " + (profile.skills != null ? profile.skills : "none"));
+                    } else {
+                        android.util.Log.i("MeshManager",
+                            ">>> NEW PROFILE RECEIVED (wire format) <<<\n" +
+                            "EndpointId: " + profile.endpointId + "\n" +
+                            "Name: " + profile.name + "\n" +
+                            "Role: " + profile.role + "\n" +
+                            "Skills: " + (profile.skills != null && !profile.skills.isEmpty() ? profile.skills : "none") + "\n" +
+                            "Equipment: " + (profile.equipment != null && !profile.equipment.isEmpty() ? profile.equipment : "none"));
+                    }
+
                     for (ConnectionHelper.ConnectionStatusListener l : listeners) {
                         l.onProfileReceived(profile);
                     }

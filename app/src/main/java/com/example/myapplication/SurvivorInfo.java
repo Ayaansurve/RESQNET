@@ -8,6 +8,7 @@ package com.example.myapplication;
  * - Injury level (none, minor, serious, critical)
  * - Location
  * - Name and other identifying info
+ * - Sync status for backend database
  *
  * This data is captured from PeerProfile and local SharedPreferences.
  */
@@ -27,6 +28,13 @@ public class SurvivorInfo {
             this.code = code;
             this.label = label;
             this.color = color;
+        }
+
+        public static InjuryLevel fromCode(int code) {
+            for (InjuryLevel level : values()) {
+                if (level.code == code) return level;
+            }
+            return NONE;
         }
     }
 
@@ -54,7 +62,8 @@ public class SurvivorInfo {
         }
     }
 
-    public final String endpointId;      // Unique identifier from PeerProfile
+    public final String deviceId;        // Persistent unique identifier for the device
+    public final String endpointId;      // Temporary identifier from PeerProfile/Nearby Connections
     public final String name;
     public final String location;        // GPS or text location
     public final InjuryLevel injuryLevel;
@@ -65,11 +74,13 @@ public class SurvivorInfo {
     public final long timestamp;         // When this info was last updated
     public final double lat;
     public final double lng;
+    public final boolean isSavedOnline;  // Sync status with backend database
 
-    public SurvivorInfo(String endpointId, String name, String location,
+    public SurvivorInfo(String deviceId, String endpointId, String name, String location,
                         InjuryLevel injuryLevel, int age,
                         int peopleCount, String description,
-                        double lat, double lng) {
+                        double lat, double lng, boolean isSavedOnline) {
+        this.deviceId = deviceId;
         this.endpointId = endpointId;
         this.name = name;
         this.location = location;
@@ -81,6 +92,15 @@ public class SurvivorInfo {
         this.timestamp = System.currentTimeMillis();
         this.lat = lat;
         this.lng = lng;
+        this.isSavedOnline = isSavedOnline;
+    }
+
+    // Secondary constructor for new records (default not saved online)
+    public SurvivorInfo(String deviceId, String endpointId, String name, String location,
+                        InjuryLevel injuryLevel, int age,
+                        int peopleCount, String description,
+                        double lat, double lng) {
+        this(deviceId, endpointId, name, location, injuryLevel, age, peopleCount, description, lat, lng, false);
     }
 
     public int getTriagePriority() {
@@ -107,15 +127,14 @@ public class SurvivorInfo {
     @Override
     public String toString() {
         return "SurvivorInfo{" +
-                "name='" + name + '\'' +
+                "deviceId='" + deviceId + '\'' +
+                ", name='" + name + '\'' +
                 ", age=" + age + " (" + ageGroup.label + ")" +
                 ", injury=" + injuryLevel.label +
                 ", location='" + location + '\'' +
                 ", people=" + peopleCount +
+                ", online=" + isSavedOnline +
                 ", priority=" + getTriagePriority() +
                 '}';
     }
 }
-
-
-

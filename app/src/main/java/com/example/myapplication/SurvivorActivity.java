@@ -178,6 +178,7 @@ public class SurvivorActivity extends AppCompatActivity
             int injury  = binding.rbMinor.isChecked() ? 1
                     : binding.rbSerious.isChecked() ? 2 : 0;
 
+            // Save to local SharedPreferences
             prefs.edit()
                     .putString(KEY_SURVIVOR_LOCATION, loc)
                     .putInt(KEY_SURVIVOR_AGE, age)
@@ -186,9 +187,9 @@ public class SurvivorActivity extends AppCompatActivity
                     .putInt(KEY_SURVIVOR_INJURY, injury)
                     .apply();
 
-            for (PeerProfile peer : MeshManager.getInstance().getPeerProfiles()) {
-                MeshManager.getInstance().sendProfileTo(this, peer.endpointId);
-            }
+            // NEW: Broadcast updated profile as JSON to ALL connected peers immediately
+            // This ensures real-time updates (not just on reconnect)
+            MeshManager.getInstance().broadcastProfileAsJson(this);
 
             if (binding == null) return;
             binding.tvSavedConfirmation.setVisibility(View.VISIBLE);

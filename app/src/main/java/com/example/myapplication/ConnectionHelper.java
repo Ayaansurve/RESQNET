@@ -332,11 +332,16 @@ public class ConnectionHelper {
 
             // Relay to all other peers (flood the network with updated profiles)
             byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
+            int relayCount = 0;
             for (String id : connectedPeers.keySet()) {
                 if (!id.equals(fromId)) {
                     nearbyClient.sendPayload(id, Payload.fromBytes(bytes));
+                    relayCount++;
                 }
             }
+
+            Log.i(TAG, "PROFILE_JSON relayed to " + relayCount + " other peers");
+
         } catch (Exception e) {
             Log.w(TAG, "Failed to handle JSON profile: " + e.getMessage());
         }

@@ -120,7 +120,7 @@ public class VolunteerActivity extends AppCompatActivity {
     }
 
     /**
-     * Validates the form, saves data to SharedPreferences, and returns to MainActivity.
+     * Validates the form, saves data to SharedPreferences, and broadcasts to mesh.
      *
      * SharedPreferences is used here (over Room/SQLite) because:
      *   1. The volunteer profile is a single record — key-value pairs are ideal.
@@ -129,6 +129,9 @@ public class VolunteerActivity extends AppCompatActivity {
      *
      * The saved name will be picked up by ConnectionHelper.buildEndpointName()
      * the next time the mesh is started or the role is refreshed.
+     *
+     * NEW: Immediately broadcasts updated profile to all connected peers via JSON
+     * so other devices see the changes in real-time (not just on reconnect).
      */
     private void saveProfile() {
         String name = binding.etName.getText() != null
@@ -158,12 +161,16 @@ public class VolunteerActivity extends AppCompatActivity {
                 .putBoolean(KEY_PROFILE_COMPLETE, true)
                 .apply();
 
+        // NEW: Broadcast updated profile to all connected peers immediately
+        // This ensures other devices see changes in real-time
+        MeshManager.getInstance().broadcastProfileAsJson(this);
+
         // Show saved confirmation in the UI
         binding.tvSavedIndicator.setVisibility(View.VISIBLE);
         binding.tvSavedIndicator.setText("✓ Saved offline — your skills will broadcast to nearby devices");
 
         Toast.makeText(this,
-                "Profile saved! Your volunteer status is now broadcasting.",
+                "Profile saved and broadcasted to team!",
                 Toast.LENGTH_LONG).show();
 
         // Brief delay so the user sees the confirmation, then go back
